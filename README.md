@@ -255,15 +255,42 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod exec api npm run 
 docker compose -f docker-compose.prod.yml --env-file .env.prod exec api npm run db:promote-super-admin -- vous@example.com
 ```
 
-Exemple `.env.prod` :
+Exemple `.env.prod` (bariserv.net) :
 
 ```env
-REGISTRY=registry.example.com/mon-org
+REGISTRY=registry.bariserv.net
 KARMA_TAG=latest
+
+# Hôtes Traefik
+KARMA_WEB_HOST=karma.bariserv.net
+KARMA_API_HOST=karma.api.bariserv.net
+
+# URLs publiques (CORS + build front GitHub Actions)
+CORS_ORIGIN=https://karma.bariserv.net
+NEXT_PUBLIC_API_URL=https://karma.api.bariserv.net
+
+# Secrets
+POSTGRES_USER=karma
 POSTGRES_PASSWORD=...
+POSTGRES_DB=karma
 JWT_SECRET=...
-CORS_ORIGIN=https://karma.example.com
-NEXT_PUBLIC_API_URL=https://api.karma.example.com
+
+# Données persistantes (avatars) — créer le dossier sur le serveur
+KARMA_DATA_PATH=/opt/karma
+
+# Traefik (optionnel — valeurs par défaut ci-dessous)
+# TRAEFIK_CERT_RESOLVER=myresolver
+# TRAEFIK_RATE_LIMIT_MIDDLEWARE=rate-limit-global@file
+# TRAEFIK_HTTPS_REDIRECT_MIDDLEWARE=redirect-to-https@file
+```
+
+Prérequis serveur : réseau Docker `traefik_proxy` existant, middlewares Traefik `rate-limit-global@file` et `redirect-to-https@file` configurés comme sur KansoBoard.
+
+```bash
+sudo mkdir -p /opt/karma/uploads
+docker login registry.bariserv.net
+docker compose -f docker-compose.prod.yml --env-file .env.prod pull
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
 
 ### Web (`apps/web/.env.local`)

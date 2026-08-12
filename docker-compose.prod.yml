@@ -1,9 +1,10 @@
-# Déploiement prod — images publiées par GitHub Actions
-# Copier en .env.prod et adapter (REGISTRY, secrets, URLs).
+name: karma-prod
 
 services:
   db:
     image: postgres:16-alpine
+    container_name: karma-prod-db
+    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-karma}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requis}
@@ -15,10 +16,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+    networks:
+      - karma_internal
 
   api:
     image: ${REGISTRY}/karma/api:${KARMA_TAG:-latest}
+    container_name: karma-prod-api
+    restart: always
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-karma}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-karma}?schema=public
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET requis}
@@ -27,22 +31,60 @@ services:
       PORT: 3001
       CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN requis}
       SEED_DEV_USERS: "false"
-    ports:
-      - "${API_PORT:-3001}:3001"
+    volumes:
+      - ${KARMA_DATA_PATH:-/opt/karma}/uploads:/app/apps/api/uploads
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+
+      # HTTPS (443)
+      - "traefik.http.routers.karma-api-prod.rule=Host(`${KARMA_API_HOST:?KARMA_API_HOST requis}`)"
+      - "traefik.http.routers.karma-api-prod.entrypoints=websecure"
+      - "traefik.http.routers.karma-api-prod.tls=true"
+      - "traefik.http.routers.karma-api-prod.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-myresolver}"
+      - "traefik.http.services.karma-api-prod.loadbalancer.server.port=3001"
+      - "traefik.http.routers.karma-api-prod.middlewares=${TRAEFIK_RATE_LIMIT_MIDDLEWARE:-rate-limit-global@file}"
+
+      # HTTP (80) → redirection HTTPS
+      - "traefik.http.routers.karma-api-prod-http.rule=Host(`${KARMA_API_HOST}`)"
+      - "traefik.http.routers.karma-api-prod-http.entrypoints=web"
+      - "traefik.http.routers.karma-api-prod-http.middlewares=${TRAEFIK_HTTPS_REDIRECT_MIDDLEWARE:-redirect-to-https@file}"
+    networks:
+      - karma_internal
+      - traefik_proxy
 
   web:
     image: ${REGISTRY}/karma/web:${KARMA_TAG:-latest}
+    container_name: karma-prod-web
+    restart: always
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL requis}
-    ports:
-      - "${WEB_PORT:-3000}:3000"
     depends_on:
       - api
-    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+
+      # HTTPS (443)
+      - "traefik.http.routers.karma-web-prod.rule=Host(`${KARMA_WEB_HOST:?KARMA_WEB_HOST requis}`)"
+      - "traefik.http.routers.karma-web-prod.entrypoints=websecure"
+      - "traefik.http.routers.karma-web-prod.tls=true"
+      - "traefik.http.routers.karma-web-prod.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-myresolver}"
+      - "traefik.http.services.karma-web-prod.loadbalancer.server.port=3000"
+      - "traefik.http.routers.karma-web-prod.middlewares=${TRAEFIK_RATE_LIMIT_MIDDLEWARE:-rate-limit-global@file}"
+
+      # HTTP (80) → redirection HTTPS
+      - "traefik.http.routers.karma-web-prod-http.rule=Host(`${KARMA_WEB_HOST}`)"
+      - "traefik.http.routers.karma-web-prod-http.entrypoints=web"
+      - "traefik.http.routers.karma-web-prod-http.middlewares=${TRAEFIK_HTTPS_REDIRECT_MIDDLEWARE:-redirect-to-https@file}"
+    networks:
+      - traefik_proxy
 
 volumes:
   karma_pg_data:
+
+networks:
+  karma_internal:
+  traefik_proxy:
+    external: true
