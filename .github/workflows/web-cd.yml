@@ -1,0 +1,34 @@
+name: CD - Web (Docker)
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+run-name: "Web #${{ github.run_number }} (${{ github.ref_name }})"
+
+jobs:
+  verify-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Vérifier que le tag est sur main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "${GITHUB_SHA}" origin/main
+
+  publish:
+    needs: verify-main
+    uses: ./.github/workflows/docker-wf.yml
+    with:
+      target: web
+      app_env: production
+      tag: latest
+      image_name: karma/web
+      version: ${{ github.ref_name }}
+      run_number: ${{ github.run_number }}
+      next_public_api_url: ${{ vars.NEXT_PUBLIC_API_URL }}
+    secrets: inherit

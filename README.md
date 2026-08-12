@@ -205,6 +205,67 @@ docker compose exec api npm run db:promote-super-admin -- vous@example.com
 
 Les données joueurs (karma, groupes, logs) ne sont **pas** dans le seed — prévoir des **backups PostgreSQL** du volume `karma_pg_data`.
 
+## CI/CD Docker (GitHub Actions)
+
+Les workflows publient les images API et Web sur votre registry privé à chaque tag semver poussé sur `main`.
+
+| Workflow | Image | Déclencheur |
+|----------|-------|-------------|
+| `CD - API (Docker)` | `karma/api` | tag `x.y.z` sur `main` |
+| `CD - Web (Docker)` | `karma/web` | tag `x.y.z` sur `main` |
+
+### Configuration GitHub (repo → Settings)
+
+**Variables** (`vars`) :
+
+| Nom | Exemple | Usage |
+|-----|---------|--------|
+| `REGISTRY` | `registry.example.com/mon-org` | Préfixe des images Docker |
+| `NEXT_PUBLIC_API_URL` | `https://api.karma.example.com` | URL API injectée au build du front |
+
+**Secrets** :
+
+| Nom | Usage |
+|-----|--------|
+| `REGISTRY_USERNAME` | Login registry |
+| `REGISTRY_PASSWORD` | Token / mot de passe registry |
+
+### Publier une version
+
+1. Merger sur `main`, mettre à jour `CHANGELOG.md` (`# [vX.Y.Z]`)
+2. Tagger et pousser :
+   ```bash
+   git tag 1.0.0
+   git push origin 1.0.0
+   ```
+3. Les workflows **API** et **Web** buildent et poussent :
+   - `{REGISTRY}/karma/api:1.0.0` + `:latest`
+   - `{REGISTRY}/karma/web:1.0.0` + `:latest`
+
+Le tag Git (`x.y.z`) est utilisé comme version d'image. Le tag doit pointer vers un commit présent sur `main`.
+
+### Déployer sur le serveur
+
+Fichier `docker-compose.prod.yml` + `.env.prod` :
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.prod pull
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+docker compose -f docker-compose.prod.yml --env-file .env.prod exec api npm run db:seed:actions
+docker compose -f docker-compose.prod.yml --env-file .env.prod exec api npm run db:promote-super-admin -- vous@example.com
+```
+
+Exemple `.env.prod` :
+
+```env
+REGISTRY=registry.example.com/mon-org
+KARMA_TAG=latest
+POSTGRES_PASSWORD=...
+JWT_SECRET=...
+CORS_ORIGIN=https://karma.example.com
+NEXT_PUBLIC_API_URL=https://api.karma.example.com
+```
+
 ### Web (`apps/web/.env.local`)
 
 | Variable | Défaut | Description |
