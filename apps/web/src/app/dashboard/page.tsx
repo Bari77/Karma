@@ -45,7 +45,7 @@ function ActionSearchInput({
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
-  accent: "cyan" | "rose";
+  accent: "good" | "bad";
 }) {
   return (
     <input
@@ -53,11 +53,12 @@ function ActionSearchInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`input-gaming py-2 text-sm ${
-        accent === "cyan"
-          ? "focus:border-cyan-400/60 focus:ring-cyan-400/20"
-          : "focus:border-rose-400/60 focus:ring-rose-400/20"
-      }`}
+      className={clsx(
+        "input-gaming py-2 text-sm",
+        accent === "good"
+          ? "focus:border-[color:var(--theme-good)] focus:ring-[color:var(--theme-good)]/20"
+          : "focus:border-[color:var(--theme-bad)] focus:ring-[color:var(--theme-bad)]/20"
+      )}
     />
   );
 }
@@ -82,7 +83,7 @@ function ActionsColumn({
 }: {
   title: string;
   subtitle: string;
-  accent: "cyan" | "rose";
+  accent: "good" | "bad";
   search: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
@@ -97,7 +98,7 @@ function ActionsColumn({
   hideTitle?: boolean;
   embeddedInPanel?: boolean;
 }) {
-  const titleClass = accent === "cyan" ? "text-cyan-400" : "text-rose-400";
+  const titleClass = accent === "good" ? "text-theme-good" : "text-theme-bad";
   const filtered = filterActions(
     sortActionsWithFavorites(actions, favorites),
     search
@@ -111,7 +112,7 @@ function ActionsColumn({
         !embeddedInPanel &&
           headerSticky &&
           compactScroll &&
-          "sticky z-30 overflow-hidden border-b border-purple-500/10 bg-karma-bg shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
+          "sticky z-30 overflow-hidden border-b border-theme bg-karma-bg shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
       )}
       style={
         !embeddedInPanel && headerSticky && stickyTopPx !== undefined && compactScroll
@@ -126,7 +127,7 @@ function ActionsColumn({
         {!hideTitle && (
           <>
             <h2 className={`font-game mb-1 text-lg md:text-xl ${titleClass}`}>{title}</h2>
-            <p className="mb-3 text-xs text-purple-300/50">{subtitle}</p>
+            <p className="mb-3 text-xs text-theme-muted">{subtitle}</p>
           </>
         )}
         <ActionSearchInput
@@ -148,14 +149,14 @@ function ActionsColumn({
           ? Array.from({ length: 6 }).map((_, i) => <ActionCardSkeleton key={i} />)
           : filtered.map(renderAction)}
         {!loading && filtered.length === 0 && (
-          <p className="py-6 text-center text-sm text-purple-300/50">
+          <p className="py-6 text-center text-sm text-theme-muted">
             {actions.length === 0 ? emptyMessage : "Aucun résultat pour cette recherche"}
           </p>
         )}
         </div>
       </div>
       {!loading && actions.length > 0 && (
-        <p className="mt-2 text-xs text-purple-300/40">
+        <p className="mt-2 text-xs text-theme-muted-soft">
           {filtered.length} / {actions.length} action{actions.length > 1 ? "s" : ""}
         </p>
       )}
@@ -182,7 +183,7 @@ function MobileActionTabs({
         "flex shrink-0 gap-2 lg:hidden",
         embedded ? "mb-2" : "mb-3",
         sticky &&
-          "sticky z-[35] -mx-4 border-b border-purple-500/10 bg-karma-bg px-4 py-2 shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
+          "sticky z-[35] -mx-4 border-b border-theme bg-karma-bg px-4 py-2 shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
       )}
       style={sticky && stickyTopPx !== undefined ? { top: stickyTopPx } : undefined}
     >
@@ -192,8 +193,8 @@ function MobileActionTabs({
         className={clsx(
           "flex-1 rounded-xl border px-3 py-2.5 font-game text-sm font-semibold transition",
           active === "good"
-            ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-300"
-            : "border-purple-500/20 bg-karma-card/40 text-purple-200/70 hover:text-white"
+            ? "border-[color:var(--theme-good)]/40 bg-[color:var(--theme-good)]/15 text-theme-good"
+            : "border-theme bg-karma-card/40 text-theme-muted-soft hover:text-white"
         )}
       >
         ✨ Bonnes actions
@@ -204,8 +205,8 @@ function MobileActionTabs({
         className={clsx(
           "flex-1 rounded-xl border px-3 py-2.5 font-game text-sm font-semibold transition",
           active === "bad"
-            ? "border-rose-400/40 bg-rose-500/15 text-rose-300"
-            : "border-purple-500/20 bg-karma-card/40 text-purple-200/70 hover:text-white"
+            ? "border-[color:var(--theme-bad)]/40 bg-[color:var(--theme-bad)]/15 text-theme-bad"
+            : "border-theme bg-karma-card/40 text-theme-muted-soft hover:text-white"
         )}
       >
         💀 Mauvaises
@@ -421,8 +422,8 @@ export default function DashboardPage() {
               exit={{ opacity: 0, y: -8 }}
               className={`fixed inset-x-0 top-20 z-50 mx-auto w-max max-w-[90vw] rounded-xl px-6 py-3 text-center font-game text-lg font-bold shadow-lg ${
                 flash.positive
-                  ? "bg-cyan-900/90 text-cyan-300 shadow-cyan-500/30"
-                  : "bg-rose-900/90 text-rose-300 shadow-rose-500/30"
+                  ? "bg-[color:var(--theme-good)]/20 text-theme-good shadow-[0_0_24px_var(--theme-shadow-to)]"
+                  : "bg-[color:var(--theme-bad)]/20 text-theme-bad shadow-[0_0_24px_var(--theme-shadow-from)]"
               }`}
             >
               {flash.msg}
@@ -502,7 +503,7 @@ export default function DashboardPage() {
         >
           {mobileCompactPanel ? (
             <div
-              className="sticky z-30 flex min-h-0 flex-col overflow-hidden border-b border-purple-500/10 bg-karma-bg shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
+              className="sticky z-30 flex min-h-0 flex-col overflow-hidden border-b border-theme bg-karma-bg shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
               style={{
                 top: mobileTabsStickyTopPx,
                 maxHeight: `calc(100dvh - ${mobileTabsStickyTopPx + 24}px)`,
@@ -522,7 +523,7 @@ export default function DashboardPage() {
                 <ActionsColumn
                   title="✨ Bonnes actions"
                   subtitle="Cooldown configurable par action (min. 1 jour)"
-                  accent="cyan"
+                  accent="good"
                   search={goodSearch}
                   onSearchChange={setGoodSearch}
                   searchPlaceholder="Rechercher une bonne action…"
@@ -545,7 +546,7 @@ export default function DashboardPage() {
                 <ActionsColumn
                   title="💀 Mauvaises actions"
                   subtitle="Illimitées par défaut — cooldown configurable"
-                  accent="rose"
+                  accent="bad"
                   search={badSearch}
                   onSearchChange={setBadSearch}
                   searchPlaceholder="Rechercher une mauvaise action…"
@@ -569,30 +570,11 @@ export default function DashboardPage() {
                 stickyTopPx={mobileTabsStickyTopPx}
               />
 
-              <div className={clsx(isMobile && mobileActionTab !== "good" && "hidden lg:block")}>
-                <ActionsColumn
-                  title="✨ Bonnes actions"
-                  subtitle="Cooldown configurable par action (min. 1 jour)"
-                  accent="cyan"
-                  search={goodSearch}
-                  onSearchChange={setGoodSearch}
-                  searchPlaceholder="Rechercher une bonne action…"
-                  loading={initialLoading}
-                  actions={goodActions}
-                  favorites={favorites}
-                  emptyMessage="Aucune bonne action disponible"
-                  renderAction={renderAction}
-                  headerSticky={gaugeSticky}
-                  stickyTopPx={columnHeaderStickyTopPx}
-                  compactScroll={gaugeSticky}
-                  hideTitle={isMobile}
-                />
-              </div>
               <div className={clsx(isMobile && mobileActionTab !== "bad" && "hidden lg:block")}>
                 <ActionsColumn
                   title="💀 Mauvaises actions"
                   subtitle="Illimitées par défaut — cooldown configurable"
-                  accent="rose"
+                  accent="bad"
                   search={badSearch}
                   onSearchChange={setBadSearch}
                   searchPlaceholder="Rechercher une mauvaise action…"
@@ -600,6 +582,25 @@ export default function DashboardPage() {
                   actions={badActions}
                   favorites={favorites}
                   emptyMessage="Aucune mauvaise action disponible"
+                  renderAction={renderAction}
+                  headerSticky={gaugeSticky}
+                  stickyTopPx={columnHeaderStickyTopPx}
+                  compactScroll={gaugeSticky}
+                  hideTitle={isMobile}
+                />
+              </div>
+              <div className={clsx(isMobile && mobileActionTab !== "good" && "hidden lg:block")}>
+                <ActionsColumn
+                  title="✨ Bonnes actions"
+                  subtitle="Cooldown configurable par action (min. 1 jour)"
+                  accent="good"
+                  search={goodSearch}
+                  onSearchChange={setGoodSearch}
+                  searchPlaceholder="Rechercher une bonne action…"
+                  loading={initialLoading}
+                  actions={goodActions}
+                  favorites={favorites}
+                  emptyMessage="Aucune bonne action disponible"
                   renderAction={renderAction}
                   headerSticky={gaugeSticky}
                   stickyTopPx={columnHeaderStickyTopPx}

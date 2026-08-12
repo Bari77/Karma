@@ -66,18 +66,18 @@ export default function ValidatePage() {
         </h1>
 
         {pending.length === 0 ? (
-          <p className="text-center text-purple-300/50">Aucune proposition en attente</p>
+          <p className="text-center text-theme-muted">Aucune proposition en attente</p>
         ) : (
           <div className="space-y-4">
             {pending.map((a) => (
               <div key={a.id} className="card-gaming space-y-4 p-6">
-                <p className="text-sm text-purple-300/60">
+                <p className="text-sm text-theme-muted">
                   Proposé par {a.proposedBy?.username ?? "inconnu"} —{" "}
                   {a.type === "GOOD" ? "✅ Bonne action" : "❌ Mauvaise action"}
                 </p>
 
                 <div>
-                  <label htmlFor={`validate-label-${a.id}`} className="mb-1 block text-sm text-purple-300/70">
+                  <label htmlFor={`validate-label-${a.id}`} className="mb-1 block text-sm text-theme-muted-soft">
                     Libellé
                   </label>
                   <input
@@ -95,7 +95,7 @@ export default function ValidatePage() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor={`validate-points-${a.id}`} className="mb-1 block text-sm text-purple-300/70">
+                    <label htmlFor={`validate-points-${a.id}`} className="mb-1 block text-sm text-theme-muted-soft">
                       Points
                     </label>
                     <input
@@ -116,7 +116,7 @@ export default function ValidatePage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor={`validate-cooldown-${a.id}`} className="mb-1 block text-sm text-purple-300/70">
+                    <label htmlFor={`validate-cooldown-${a.id}`} className="mb-1 block text-sm text-theme-muted-soft">
                       Cooldown (jours)
                     </label>
                     <input
@@ -138,7 +138,7 @@ export default function ValidatePage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-purple-300/50">
+                <p className="text-xs text-theme-muted">
                   Cooldown : 0 = illimité, 1 = reset journalier (minimum), 2+ = jours
                 </p>
 

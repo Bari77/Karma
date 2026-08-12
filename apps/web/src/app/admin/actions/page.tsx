@@ -85,7 +85,7 @@ function ActionAdminRow({
           disabled={saving}
         />
         <div className="flex items-center gap-2">
-          <label className="text-xs text-purple-300/60">Points</label>
+          <label className="text-xs text-theme-muted">Points</label>
           <input
             type="number"
             className="input-gaming w-20 py-2 text-sm"
@@ -96,13 +96,13 @@ function ActionAdminRow({
             disabled={saving}
           />
         </div>
-        <span className="rounded-lg bg-purple-900/40 px-2 py-1 text-xs text-purple-300/70">
+        <span className="rounded-lg bg-purple-900/40 px-2 py-1 text-xs text-theme-muted-soft">
           {action.status}
         </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-purple-500/10 pt-3">
-        <label className="text-xs text-purple-300/60">Cooldown (jours)</label>
+      <div className="flex flex-wrap items-center gap-3 border-t border-theme pt-3">
+        <label className="text-xs text-theme-muted">Cooldown (jours)</label>
         <input
           type="number"
           className="input-gaming w-20 py-2 text-sm"
@@ -112,8 +112,8 @@ function ActionAdminRow({
           onBlur={() => saveIfChanged("cooldownDays", cooldownDays)}
           disabled={saving}
         />
-        <span className="text-xs text-purple-300/50">{formatCooldownDays(cooldownDays)}</span>
-        {saving && <span className="text-xs text-cyan-400/70">Enregistrement…</span>}
+        <span className="text-xs text-theme-muted">{formatCooldownDays(cooldownDays)}</span>
+        {saving && <span className="text-xs text-theme-from/70">Enregistrement…</span>}
         <button
           type="button"
           onClick={() => onRemove(action.id)}
@@ -203,10 +203,10 @@ export default function AdminActionsPage() {
         </h1>
 
         <form onSubmit={create} className="card-gaming mb-8 space-y-4 p-6">
-          <h2 className="font-semibold text-cyan-300">Créer une action</h2>
+          <h2 className="font-semibold text-theme-from">Créer une action</h2>
 
           <div>
-            <label htmlFor="action-label" className="mb-1 block text-sm text-purple-300/70">
+            <label htmlFor="action-label" className="mb-1 block text-sm text-theme-muted-soft">
               Libellé
             </label>
             <input
@@ -221,7 +221,7 @@ export default function AdminActionsPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <label htmlFor="action-points" className="mb-1 block text-sm text-purple-300/70">
+              <label htmlFor="action-points" className="mb-1 block text-sm text-theme-muted-soft">
                 Points
               </label>
               <input
@@ -234,7 +234,7 @@ export default function AdminActionsPage() {
               />
             </div>
             <div>
-              <label htmlFor="action-type" className="mb-1 block text-sm text-purple-300/70">
+              <label htmlFor="action-type" className="mb-1 block text-sm text-theme-muted-soft">
                 Type
               </label>
               <GamingSelect
@@ -248,7 +248,7 @@ export default function AdminActionsPage() {
               />
             </div>
             <div>
-              <label htmlFor="action-cooldown" className="mb-1 block text-sm text-purple-300/70">
+              <label htmlFor="action-cooldown" className="mb-1 block text-sm text-theme-muted-soft">
                 Cooldown (jours)
               </label>
               <input
@@ -267,7 +267,7 @@ export default function AdminActionsPage() {
             </div>
           </div>
 
-          <p className="text-xs text-purple-300/50">
+          <p className="text-xs text-theme-muted">
             Cooldown : 0 = illimité, 1 = reset journalier (minimum), 2+ = jours
           </p>
         </form>
@@ -284,7 +284,7 @@ export default function AdminActionsPage() {
                 />
               ))}
           {!loading && actions.length === 0 && (
-            <p className="text-center text-purple-300/50">Aucune action</p>
+            <p className="text-center text-theme-muted">Aucune action</p>
           )}
         </div>
       </main>

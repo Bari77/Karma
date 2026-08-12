@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ConfirmProvider } from "@/lib/confirm-context";
+import { ThemeProvider } from "@/lib/theme-provider";
 
 export const metadata: Metadata = {
   title: "Karma Quest — Gère ton aura",
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="fr" data-theme="cyan-purple">
       <body className="bg-grid min-h-screen">
         <AuthProvider>
-          <ConfirmProvider>{children}</ConfirmProvider>
+          <ThemeProvider>
+            <ConfirmProvider>{children}</ConfirmProvider>
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

@@ -15,7 +15,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="font-game animate-pulse text-2xl text-purple-400">
+        <div className="font-game animate-pulse text-2xl text-theme-to">
           Chargement...
         </div>
       </div>

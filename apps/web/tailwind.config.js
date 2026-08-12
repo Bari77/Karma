@@ -7,9 +7,9 @@ module.exports = {
         karma: {
           bg: "#0a0a12",
           card: "#12121f",
-          glow: "#a855f7",
-          good: "#22d3ee",
-          bad: "#f43f5e",
+          glow: "var(--theme-glow)",
+          good: "var(--theme-good)",
+          bad: "var(--theme-bad)",
         },
       },
       animation: {
@@ -18,8 +18,11 @@ module.exports = {
       },
       keyframes: {
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)" },
-          "50%": { boxShadow: "0 0 40px rgba(168, 85, 247, 0.8), 0 0 60px rgba(34, 211, 238, 0.3)" },
+          "0%, 100%": { boxShadow: "0 0 20px var(--theme-shadow-to)" },
+          "50%": {
+            boxShadow:
+              "0 0 40px var(--theme-shadow-to-strong), 0 0 60px var(--theme-shadow-from)",
+          },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },

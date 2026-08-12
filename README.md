@@ -30,13 +30,15 @@ docker compose up --build
 podman-compose up --build
 ```
 
-Puis initialiser les données de test :
+Puis initialiser les données (actions + comptes de test) :
 
 ```bash
 docker compose --profile seed run --rm seed
 # Podman :
 podman-compose --profile seed run --rm seed
 ```
+
+En production, ne seedez que le catalogue d'actions (voir [Seed et déploiement](#seed-et-déploiement)).
 
 > **Note Podman (Windows)** : `podman-compose` 1.x ignore les chemins `dockerfile:` personnalisés (ex. `apps/api/Dockerfile`). Le projet utilise un `Dockerfile` unique à la racine avec des cibles `api` et `web`, compatible Docker Compose et podman-compose.
 
@@ -165,6 +167,43 @@ Transformer le Next.js actuel en PWA installable sur mobile.
 | `KARMA_DAILY_DECAY` | 5 | Points perdus par jour |
 | `KARMA_MAX` | 100 | Plafond de karma |
 | `CORS_ORIGIN` | http://localhost:3000 | Origine front autorisée |
+| `SEED_DEV_USERS` | true (hors prod) | Créer les comptes `*.@karma.local` lors du seed |
+
+## Seed et déploiement
+
+Le seed est **idempotent** : relancer ne duplique pas les actions (upsert par label).
+
+| Script | Usage |
+|--------|--------|
+| `npm run db:seed` | Dev local : actions + comptes de test |
+| `npm run db:seed:actions` | **Prod** : catalogue BA/MA uniquement |
+| `npm run db:seed:dev` | Comptes de test uniquement (dev/staging) |
+
+**Comportement `SEED_DEV_USERS` :**
+- `true` ou non défini en dev → actions + comptes de test
+- `false` ou `NODE_ENV=production` → actions seulement
+
+**Premier déploiement prod (bootstrap super admin) :**
+1. `prisma migrate deploy` (automatique au démarrage de l'API)
+2. `SEED_DEV_USERS=false npm run db:seed:actions`
+3. Créer votre compte sur `/register` (rôle **USER** par défaut)
+4. Promouvoir ce compte en super admin (accès shell à la BDD requis une seule fois) :
+
+```bash
+# En local, depuis apps/api avec DATABASE_URL prod :
+npm run db:promote-super-admin -- vous@example.com
+
+# Avec Docker Compose (API déjà up) :
+docker compose exec api npm run db:promote-super-admin -- vous@example.com
+```
+
+5. Se reconnecter — vous avez accès à **Admin → Utilisateurs** pour gérer les rôles
+
+> L'inscription seule ne suffit pas : seul un super admin (ou ce script CLI) peut attribuer le rôle SUPER_ADMIN.
+
+**Alternative temporaire :** lancer une fois `db:seed:dev`, se connecter avec `superadmin@karma.local / admin123`, promouvoir votre vrai compte via l'UI, puis ne plus utiliser les comptes de test.
+
+Les données joueurs (karma, groupes, logs) ne sont **pas** dans le seed — prévoir des **backups PostgreSQL** du volume `karma_pg_data`.
 
 ### Web (`apps/web/.env.local`)
 

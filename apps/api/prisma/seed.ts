@@ -1,194 +1,46 @@
-import { PrismaClient, Role, ActionStatus, ActionType } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { PrismaClient } from "@prisma/client";
+import { seedActions } from "./seed-actions";
+import { logDevAccounts, seedDevUsers } from "./seed-dev";
 
-const prisma = new PrismaClient();
-
-const GOOD_ACTIONS: { label: string; points: number }[] = [
-  { label: "Tenir la porte à quelqu'un", points: 1 },
-  { label: "Dire bonjour / merci", points: 1 },
-  { label: "Faire un compliment sincère", points: 2 },
-  { label: "Ramasser un déchet qui n'est pas à soi", points: 2 },
-  { label: "Laisser sa place à quelqu'un", points: 3 },
-  { label: "Aider quelqu'un à porter quelque chose", points: 3 },
-  { label: "Rendre un objet trouvé", points: 4 },
-  { label: "Prendre des nouvelles de quelqu'un", points: 3 },
-  { label: "Aider quelqu'un sans rien attendre en retour", points: 5 },
-  { label: "Rendre service à un proche", points: 4 },
-  { label: "Aider un inconnu en difficulté", points: 6 },
-  { label: "Défendre quelqu'un injustement attaqué", points: 7 },
-  { label: "Reconnaître son erreur et s'excuser", points: 5 },
-  { label: "Pardonner une petite erreur", points: 3 },
-  { label: "Tenir une promesse importante", points: 5 },
-  { label: "Donner des vêtements ou objets utiles", points: 4 },
-  { label: "Donner de la nourriture", points: 5 },
-  { label: "Donner de l'argent à une association", points: 5 },
-  { label: "Faire du bénévolat", points: 8 },
-  { label: "Donner son sang", points: 10 },
-  { label: "Aider une personne âgée", points: 6 },
-  { label: "Aider une personne blessée ou malade", points: 8 },
-  { label: "Réconforter quelqu'un qui va mal", points: 6 },
-  { label: "Intervenir/alerter face à une situation dangereuse", points: 10 },
-  { label: "Sauver ou secourir quelqu'un", points: 15 },
-  { label: "Rendre de l'argent reçu par erreur", points: 7 },
-  { label: "Signaler un objet perdu à son propriétaire", points: 4 },
-  { label: "Partager quelque chose avec quelqu'un", points: 3 },
-  { label: "Inviter quelqu'un qui est mis à l'écart", points: 6 },
-  { label: "Féliciter sincèrement quelqu'un pour sa réussite", points: 3 },
-  { label: "Nettoyer un lieu commun sans qu'on le demande", points: 4 },
-  { label: "Aider un collègue dans son travail", points: 4 },
-  { label: "Apprendre gratuitement quelque chose à quelqu'un", points: 5 },
-  { label: "Céder le passage en voiture", points: 1 },
-  { label: "Laisser quelqu'un passer devant soi dans une file quand il est pressé", points: 2 },
-  { label: "Rapporter un portefeuille/téléphone trouvé", points: 8 },
-  { label: "Prendre soin d'un animal abandonné/blessé", points: 7 },
-  { label: "Faire une bonne action anonymement", points: 6 },
-];
-
-const BAD_ACTIONS: { label: string; points: number }[] = [
-  { label: "Ne pas dire merci après un service", points: 1 },
-  { label: "Jeter un déchet par terre", points: 2 },
-  { label: "Doubler quelqu'un dans une file", points: 2 },
-  { label: "Être volontairement impoli", points: 2 },
-  { label: "Insulter quelqu'un", points: 4 },
-  { label: "Se moquer volontairement de quelqu'un", points: 4 },
-  { label: "Mentir pour éviter une petite responsabilité", points: 3 },
-  { label: "Mentir pour obtenir un avantage", points: 5 },
-  { label: "Ne pas tenir volontairement une promesse", points: 4 },
-  { label: "Annuler au dernier moment sans prévenir", points: 3 },
-  { label: "Ignorer volontairement quelqu'un qui demande une petite aide", points: 3 },
-  { label: "Prendre le mérite du travail de quelqu'un", points: 6 },
-  { label: "Répandre une rumeur", points: 6 },
-  { label: "Humilier quelqu'un devant d'autres personnes", points: 7 },
-  { label: "Tromper volontairement quelqu'un", points: 7 },
-  { label: "Manipuler quelqu'un pour obtenir quelque chose", points: 8 },
-  { label: "Profiter financièrement de quelqu'un", points: 8 },
-  { label: "Garder un objet trouvé en sachant à qui il appartient", points: 6 },
-  { label: "Garder de l'argent reçu par erreur", points: 7 },
-  { label: "Dégrader volontairement un lieu public", points: 6 },
-  { label: "Abîmer volontairement les affaires de quelqu'un", points: 7 },
-  { label: "Harceler quelqu'un", points: 10 },
-  { label: "Intimider/menacer quelqu'un", points: 10 },
-  { label: "Voler quelque chose", points: 10 },
-  { label: "Arnaquer quelqu'un", points: 12 },
-  { label: "Trahir volontairement la confiance de quelqu'un", points: 8 },
-  { label: "Abandonner un animal", points: 12 },
-  { label: "Maltraiter un animal", points: 15 },
-  { label: "Mettre volontairement quelqu'un en danger", points: 15 },
-  {
-    label: "Refuser d'aider une personne en danger alors qu'on peut raisonnablement agir/alerter sans se mettre en danger",
-    points: 12,
-  },
-  { label: "Conduire volontairement de manière dangereuse", points: 10 },
-  { label: "Casser quelque chose et accuser quelqu'un d'autre", points: 7 },
-  { label: "Faire volontairement exclure quelqu'un d'un groupe", points: 6 },
-  { label: "Divulguer un secret confié", points: 6 },
-  { label: "Filmer quelqu'un dans une situation humiliante et diffuser la vidéo", points: 10 },
-  { label: "Faire du chantage", points: 12 },
-];
-
-const OBSOLETE_LABELS = [
-  "Aider un collègue",
-  "Faire du sport",
-  "Méditer 10 minutes",
-  "Lire 30 minutes",
-  "Être en retard",
-  "Gronder quelqu'un",
-  "Passer la journée sur les réseaux",
-];
-
-function sortByPoints(a: { label: string; points: number }, b: { label: string; points: number }) {
-  return a.points - b.points || a.label.localeCompare(b.label, "fr");
-}
-
-async function upsertActions(
-  items: { label: string; points: number }[],
-  type: ActionType,
-  validatedById: string
-) {
-  for (const action of items) {
-    const existing = await prisma.action.findFirst({
-      where: { label: action.label },
-    });
-    if (!existing) {
-      await prisma.action.create({
-        data: {
-          label: action.label,
-          points: action.points,
-          type,
-          cooldownDays: 0,
-          status: ActionStatus.ACTIVE,
-          validatedById,
-        },
-      });
-    } else {
-      await prisma.action.update({
-        where: { id: existing.id },
-        data: {
-          points: action.points,
-          type,
-          cooldownDays: 0,
-          status: ActionStatus.ACTIVE,
-        },
-      });
-    }
+export function shouldSeedDevUsers(): boolean {
+  const env = process.env.SEED_DEV_USERS;
+  if (env !== undefined) {
+    return env === "true" || env === "1";
   }
+  return process.env.NODE_ENV !== "production";
 }
 
 async function main() {
-  const passwordHash = await bcrypt.hash("admin123", 10);
+  const prisma = new PrismaClient();
+  const seedDev = shouldSeedDevUsers();
 
-  const superAdmin = await prisma.user.upsert({
-    where: { email: "superadmin@karma.local" },
-    update: {},
-    create: {
-      email: "superadmin@karma.local",
-      username: "SuperAdmin",
-      passwordHash,
-      role: Role.SUPER_ADMIN,
-      karmaScore: 50,
-    },
-  });
+  try {
+    let validatedById: string | undefined;
 
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@karma.local" },
-    update: {},
-    create: {
-      email: "admin@karma.local",
-      username: "AdminKarma",
-      passwordHash: await bcrypt.hash("admin123", 10),
-      role: Role.ADMIN,
-      karmaScore: 85,
-    },
-  });
+    if (seedDev) {
+      await seedDevUsers(prisma);
+      const admin = await prisma.user.findUniqueOrThrow({
+        where: { email: "admin@karma.local" },
+      });
+      validatedById = admin.id;
+    }
 
-  await prisma.user.upsert({
-    where: { email: "user@karma.local" },
-    update: {},
-    create: {
-      email: "user@karma.local",
-      username: "JoueurTest",
-      passwordHash: await bcrypt.hash("user123", 10),
-      role: Role.USER,
-      karmaScore: 72,
-    },
-  });
+    const result = await seedActions(prisma, validatedById);
 
-  await upsertActions([...GOOD_ACTIONS].sort(sortByPoints), ActionType.GOOD, admin.id);
-  await upsertActions([...BAD_ACTIONS].sort(sortByPoints), ActionType.BAD, admin.id);
+    console.log("Seed OK");
+    console.log(`Actions : ${result.good} bonnes, ${result.bad} mauvaises`);
 
-  await prisma.action.updateMany({
-    where: { label: { in: OBSOLETE_LABELS } },
-    data: { status: ActionStatus.REJECTED },
-  });
-
-  console.log("Seed OK — comptes de test :");
-  console.log("  superadmin@karma.local / admin123 (SUPER_ADMIN)");
-  console.log("  admin@karma.local / admin123 (ADMIN)");
-  console.log("  user@karma.local / user123 (USER)");
-  console.log(`Actions : ${GOOD_ACTIONS.length} bonnes, ${BAD_ACTIONS.length} mauvaises`);
-  console.log("Super admin id:", superAdmin.id);
+    if (seedDev) {
+      logDevAccounts();
+    } else {
+      console.log("Comptes de test ignorés (SEED_DEV_USERS=false ou NODE_ENV=production)");
+    }
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+void main();

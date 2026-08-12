@@ -16,6 +16,8 @@ export enum ActionStatus {
   REJECTED = "REJECTED",
 }
 
+import type { ThemeId } from "./themes";
+
 export interface UserPublic {
   id: string;
   email: string;
@@ -23,6 +25,7 @@ export interface UserPublic {
   role: Role;
   karmaScore: number;
   avatarUrl: string | null;
+  themeId: ThemeId;
   createdAt: string;
 }
 

@@ -76,9 +76,9 @@ export function ActionCard({
           "card-gaming relative flex w-full items-center justify-between p-4 text-left transition",
           onCooldown && "cursor-not-allowed opacity-50",
           loading && "cursor-wait",
-          !isDisabled && "cursor-pointer hover:shadow-md hover:shadow-purple-900/30",
-          !isDisabled && isGood && "hover:border-cyan-400/40",
-          !isDisabled && !isGood && "hover:border-rose-400/40"
+          !isDisabled && "cursor-pointer hover:shadow-md hover:shadow-[color:var(--theme-shadow-to)]",
+          !isDisabled && isGood && "hover:border-[color:var(--theme-border-strong)]",
+          !isDisabled && !isGood && "hover:border-[color:var(--theme-border-strong)]",
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3 pr-2">
@@ -111,13 +111,13 @@ export function ActionCard({
           <span
             className={clsx(
               "ml-3 inline-block h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-t-transparent",
-              isGood ? "border-cyan-400" : "border-rose-400"
+              isGood ? "border-theme-good" : "border-theme-bad"
             )}
             aria-label="Chargement"
           />
         ) : onCooldown ? (
           <span
-            className="ml-3 shrink-0 text-right font-game text-sm font-bold tabular-nums text-purple-300/80"
+            className="ml-3 shrink-0 text-right font-game text-sm font-bold tabular-nums text-theme-muted"
             title={formatCooldown(remaining, nextAvailableAt)}
           >
             ⏳ {formatCooldownCompact(remaining)}
@@ -126,7 +126,7 @@ export function ActionCard({
           <span
             className={clsx(
               "ml-3 shrink-0 font-game text-lg font-bold tabular-nums",
-              isGood ? "text-cyan-400" : "text-rose-400"
+              isGood ? "text-theme-good" : "text-theme-bad"
             )}
           >
             {isGood ? "+" : "−"}

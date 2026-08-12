@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { Role } from "@karma/shared";
+import { Role, ThemeId, isThemeId } from "@karma/shared";
 import { prisma } from "../lib/prisma";
 import { removeUserAvatarFiles, saveUserAvatar } from "../lib/avatar";
 import { toUserPublic } from "../lib/utils";
@@ -65,10 +65,14 @@ export async function listStaffUsers() {
 
 export async function updateUserProfile(
   userId: string,
-  data: { username?: string; email?: string }
+  data: { username?: string; email?: string; themeId?: ThemeId }
 ) {
-  if (!data.username && !data.email) {
+  if (!data.username && !data.email && !data.themeId) {
     throw new Error("Aucune modification à enregistrer");
+  }
+
+  if (data.themeId && !isThemeId(data.themeId)) {
+    throw new Error("Thème invalide");
   }
 
   if (data.email || data.username) {
@@ -95,6 +99,7 @@ export async function updateUserProfile(
     data: {
       ...(data.username !== undefined && { username: data.username }),
       ...(data.email !== undefined && { email: data.email }),
+      ...(data.themeId !== undefined && { themeId: data.themeId }),
     },
   });
   return toUserPublic(user);
@@ -139,9 +144,6 @@ export async function clearUserAvatar(userId: string) {
 }
 
 export async function updateUserRole(userId: string, role: Role) {
-  if (role === Role.SUPER_ADMIN) {
-    throw new Error("Impossible d'assigner le rôle SUPER_ADMIN via l'API");
-  }
   const user = await prisma.user.update({
     where: { id: userId },
     data: { role },

@@ -29,7 +29,7 @@ export function UserAvatar({
         src={src}
         alt={`Avatar de ${username}`}
         className={clsx(
-          "shrink-0 object-cover ring-1 ring-purple-500/30",
+          "shrink-0 object-cover ring-1 ring-[color:var(--theme-border)]",
           SIZES[size],
           className
         )}
@@ -40,7 +40,7 @@ export function UserAvatar({
   return (
     <div
       className={clsx(
-        "flex shrink-0 items-center justify-center bg-gradient-to-br from-cyan-500/25 to-purple-600/35 font-game font-bold text-cyan-200",
+        "flex shrink-0 items-center justify-center bg-theme-gradient font-game font-bold text-white",
         SIZES[size],
         className
       )}

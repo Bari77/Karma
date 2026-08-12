@@ -65,9 +65,9 @@ export default function LoginPage() {
             {loading ? "Connexion..." : "Entrer dans l'arène"}
           </button>
         </div>
-        <p className="mt-4 text-center text-sm text-purple-300/60">
+        <p className="mt-4 text-center text-sm text-theme-muted">
           Pas de compte ?{" "}
-          <Link href="/register" className="text-cyan-400 hover:underline">
+          <Link href="/register" className="text-theme-from hover:underline">
             S&apos;inscrire
           </Link>
         </p>

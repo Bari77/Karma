@@ -25,7 +25,7 @@ export default function HomePage() {
         <h1 className="font-game mb-4 text-5xl font-black glow-text md:text-7xl">
           Karma Quest
         </h1>
-        <p className="mb-8 max-w-lg text-xl text-purple-200/80">
+        <p className="mb-8 max-w-lg text-xl text-theme-muted/80">
           Coche tes actions du jour. Monte ta jauge. Évite la décroissance quotidienne.
           Deviens une légende du karma.
         </p>
@@ -37,7 +37,7 @@ export default function HomePage() {
             Créer un compte
           </Link>
         </div>
-        <div className="mt-12 grid grid-cols-3 gap-4 text-center text-sm text-purple-300/60">
+        <div className="mt-12 grid grid-cols-3 gap-4 text-center text-sm text-theme-muted">
           <div className="card-gaming p-4">
             <div className="text-2xl">📈</div>
             <div>Bonnes actions</div>

@@ -112,6 +112,11 @@ export async function userRoutes(fastify: FastifyInstance) {
         return reply.status(403).send({ error: "Accès refusé" });
       }
       const { id } = request.params as { id: string };
+      if (id === request.user.id) {
+        return reply.status(400).send({
+          error: "Vous ne pouvez pas modifier votre propre rôle",
+        });
+      }
       const parsed = updateUserRoleSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.status(400).send({ error: parsed.error.flatten() });

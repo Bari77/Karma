@@ -75,13 +75,13 @@ function PodiumCard({
         <p className="mt-2 line-clamp-2 w-full font-semibold text-white">
           {member.username}
           {member.isGroupOwner && (
-            <span className="block text-xs text-purple-300/70">Propriétaire</span>
+            <span className="block text-xs text-theme-muted-soft">Propriétaire</span>
           )}
           {member.isMe && !member.isGroupOwner && (
-            <span className="block text-xs text-cyan-400">(vous)</span>
+            <span className="block text-xs text-theme-from">(vous)</span>
           )}
         </p>
-        <p className="mt-1 font-game text-xl font-bold text-cyan-400">{member.karmaScore}</p>
+        <p className="mt-1 font-game text-xl font-bold text-theme-from">{member.karmaScore}</p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-purple-900/40">
           <div
             className="karma-progress-fill h-full"
@@ -118,7 +118,7 @@ function LeaderboardRow({
           member.isGroupOwner && "ring-1 ring-purple-400/30"
         )}
       >
-        <span className="w-8 shrink-0 text-center font-game text-lg text-purple-300/80">
+        <span className="w-8 shrink-0 text-center font-game text-lg text-theme-muted">
           #{member.rank}
         </span>
         <UserAvatar username={member.username} avatarUrl={member.avatarUrl} size="sm" />
@@ -126,10 +126,10 @@ function LeaderboardRow({
           <p className="font-semibold">
             {member.username}
             {member.isGroupOwner && (
-              <span className="ml-2 text-xs text-purple-300/70">Propriétaire</span>
+              <span className="ml-2 text-xs text-theme-muted-soft">Propriétaire</span>
             )}
             {member.isMe && !member.isGroupOwner && (
-              <span className="ml-2 text-xs text-cyan-400">(vous)</span>
+              <span className="ml-2 text-xs text-theme-from">(vous)</span>
             )}
           </p>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-purple-900/40">
@@ -139,7 +139,7 @@ function LeaderboardRow({
             />
           </div>
         </div>
-        <span className="font-game text-lg font-bold text-cyan-400">{member.karmaScore}</span>
+        <span className="font-game text-lg font-bold text-theme-from">{member.karmaScore}</span>
       </motion.button>
       {showRemove && (
         <button
@@ -268,7 +268,7 @@ export default function GroupDetailPage() {
     <AuthGuard>
       <Navbar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <Link href="/groups" className="mb-4 inline-block text-sm text-purple-300/60 hover:text-cyan-400">
+        <Link href="/groups" className="mb-4 inline-block text-sm text-theme-muted hover:text-theme-from">
           ← Retour aux groupes
         </Link>
 
@@ -298,9 +298,9 @@ export default function GroupDetailPage() {
               <div>
                 <h1 className="font-game text-2xl font-bold glow-text">{group.name}</h1>
                 {group.description && (
-                  <p className="mt-1 text-purple-300/60">{group.description}</p>
+                  <p className="mt-1 text-theme-muted">{group.description}</p>
                 )}
-                <p className="mt-2 font-mono text-xs text-cyan-400/80">
+                <p className="mt-2 font-mono text-xs text-theme-from/80">
                   Code : {group.inviteCode}
                 </p>
               </div>
@@ -319,11 +319,11 @@ export default function GroupDetailPage() {
 
             {group.isOwner && (
               <section className="card-gaming mb-6 space-y-3 p-4">
-                <h2 className="font-semibold text-cyan-300">Gestion du groupe</h2>
+                <h2 className="font-semibold text-theme-from">Gestion du groupe</h2>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <p className="font-mono text-sm text-purple-200">
+                  <p className="font-mono text-sm text-theme-muted">
                     Code d&apos;invitation :{" "}
-                    <span className="text-cyan-400">{group.inviteCode}</span>
+                    <span className="text-theme-from">{group.inviteCode}</span>
                   </p>
                   <button
                     type="button"
@@ -334,19 +334,19 @@ export default function GroupDetailPage() {
                     Régénérer le code
                   </button>
                 </div>
-                <p className="text-xs text-purple-300/50">
+                <p className="text-xs text-theme-muted">
                   Excluez un membre via le bouton sur sa ligne ou sa carte du podium.
                 </p>
                 {adminMsg && (
-                  <p className="text-sm text-purple-200">{adminMsg}</p>
+                  <p className="text-sm text-theme-muted">{adminMsg}</p>
                 )}
               </section>
             )}
 
-            <h2 className="font-game mb-4 text-lg text-purple-200">Classement</h2>
+            <h2 className="font-game mb-4 text-lg text-theme-muted">Classement</h2>
 
             {group.members.length === 0 ? (
-              <p className="py-8 text-center text-purple-300/50">Aucun membre</p>
+              <p className="py-8 text-center text-theme-muted">Aucun membre</p>
             ) : (
               <>
                 {getPodiumSlots(group.members).length > 0 && (

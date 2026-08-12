@@ -75,7 +75,7 @@ export function GamingSelect<T extends string = string>({
         >
           <svg
             viewBox="0 0 12 12"
-            className="h-3 w-3 fill-current text-purple-300/70"
+            className="h-3 w-3 fill-current text-theme-muted-soft"
             aria-hidden
           >
             <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

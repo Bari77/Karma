@@ -15,8 +15,8 @@ function navLinkClass(active: boolean) {
   return clsx(
     "rounded-lg px-3 py-2 text-sm font-semibold transition",
     active
-      ? "bg-purple-600/30 text-cyan-300"
-      : "text-purple-200/70 hover:text-white"
+      ? "bg-theme-nav-active text-theme-from"
+      : "text-theme-muted-soft hover:text-white"
   );
 }
 
@@ -64,12 +64,12 @@ export function Navbar() {
       className={clsx(navLinkClass(dashboardActive), "inline-flex items-center gap-2")}
     >
       <span>Jeu</span>
-      <span className="font-game text-xs font-bold text-cyan-400">{user.karmaScore} KP</span>
+      <span className="font-game text-xs font-bold text-theme-from">{user.karmaScore} KP</span>
     </Link>
   ) : null;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-karma-bg/90 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b border-theme bg-karma-bg/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:py-4">
         <Link
           href="/dashboard"
@@ -99,8 +99,8 @@ export function Navbar() {
                 className={clsx(
                   "hidden items-center gap-2 rounded-lg px-2 py-1 transition sm:flex",
                   pathname === "/profile"
-                    ? "bg-purple-600/30 text-cyan-300"
-                    : "text-purple-300/80 hover:bg-purple-900/30 hover:text-white"
+                    ? "bg-theme-nav-active text-theme-from"
+                    : "text-theme-muted hover:bg-theme-nav-active hover:text-white"
                 )}
                 title="Mon profil"
               >
@@ -127,7 +127,7 @@ export function Navbar() {
                 aria-expanded={menuOpen}
                 aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
                 onClick={() => setMenuOpen((o) => !o)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-purple-500/30 bg-karma-card/60 text-purple-100 transition hover:border-purple-400/50 hover:text-white md:hidden"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-theme bg-karma-card/60 text-theme-muted transition hover:border-theme-strong hover:text-white md:hidden"
               >
                 <span className="sr-only">Menu</span>
                 <svg
@@ -156,7 +156,7 @@ export function Navbar() {
       </div>
 
       {user && menuOpen && (
-        <div className="border-t border-purple-500/15 bg-karma-bg/98 px-4 py-3 backdrop-blur-md md:hidden">
+        <div className="border-t border-theme bg-karma-bg/98 px-4 py-3 backdrop-blur-md md:hidden">
           <div className="mx-auto flex max-w-6xl flex-col gap-1">
             {jeuLink}
             {links.map((l) => {
@@ -179,8 +179,8 @@ export function Navbar() {
               className={clsx(
                 "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition",
                 pathname === "/profile"
-                  ? "bg-purple-600/30 text-cyan-300"
-                  : "text-purple-200/70 hover:text-white"
+                  ? "bg-theme-nav-active text-theme-from"
+                  : "text-theme-muted-soft hover:text-white"
               )}
             >
               <UserAvatar

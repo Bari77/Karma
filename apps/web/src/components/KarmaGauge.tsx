@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import type { ReactNode } from "react";
+import { useThemeColors } from "@/lib/use-theme-colors";
+import type { ThemeDefinition } from "@karma/shared/themes";
 import "./karma-gauge.css";
 
 interface KarmaGaugeProps {
@@ -15,12 +17,6 @@ interface KarmaGaugeProps {
 }
 
 const SEGMENTS = 28;
-const CYAN = "#22d3ee";
-const PURPLE = "#c026d3";
-const CYAN_NEON = "#00f0ff";
-const PURPLE_NEON = "#e040fb";
-const CYAN_DIM = "#0e7490";
-const PURPLE_DIM = "#581c87";
 
 const VB_W = 520;
 const VB_H = 365;
@@ -35,18 +31,23 @@ const SEG_GAP_RATIO = 0.1;
 const SEG_W = SEG_ARC_PITCH * (1 - SEG_GAP_RATIO);
 const SEG_H = 24;
 
-function getMood(percent: number): { label: string; color: string } {
-  if (percent >= 80) return { label: "Légendaire ✨", color: CYAN };
-  if (percent >= 60) return { label: "Équilibré ⚡", color: "#a855f7" };
+function getMood(percent: number, colors: ThemeDefinition): { label: string; color: string } {
+  if (percent >= 80) return { label: "Légendaire ✨", color: colors.accentTo };
+  if (percent >= 60) return { label: "Équilibré ⚡", color: colors.glow };
   if (percent >= 40) return { label: "En baisse 📉", color: "#f59e0b" };
-  if (percent >= 20) return { label: "Critique 🔥", color: "#f97316" };
+  if (percent >= 20) return { label: "Critique 🔥", color: colors.accentFrom };
   return { label: "Chaos total 💀", color: "#f43f5e" };
 }
 
-function segmentColor(index: number, total: number, lit: boolean): string {
+function segmentColor(
+  index: number,
+  total: number,
+  lit: boolean,
+  colors: ThemeDefinition
+): string {
   const t = index / (total - 1);
-  const from = lit ? CYAN_NEON : CYAN_DIM;
-  const to = lit ? PURPLE_NEON : PURPLE_DIM;
+  const from = lit ? colors.accentFromNeon : colors.accentFromDim;
+  const to = lit ? colors.accentToNeon : colors.accentToDim;
   return mixColor(from, to, t);
 }
 
@@ -67,12 +68,14 @@ function Segment({
   cy,
   radius,
   lit,
+  colors,
 }: {
   index: number;
   cx: number;
   cy: number;
   radius: number;
   lit: boolean;
+  colors: ThemeDefinition;
 }) {
   const angle = Math.PI + (index / (SEGMENTS - 1)) * Math.PI;
   const x = cx + Math.cos(angle) * radius;
@@ -80,7 +83,7 @@ function Segment({
   const w = SEG_W;
   const h = SEG_H;
   const deg = (angle * 180) / Math.PI + 90;
-  const color = segmentColor(index, SEGMENTS, lit);
+  const color = segmentColor(index, SEGMENTS, lit, colors);
 
   return (
     <rect
@@ -101,7 +104,17 @@ function Segment({
 }
 
 /** Yin-yang néon contour uniquement (pas de remplissage) */
-function YinYang({ cx, cy, r }: { cx: number; cy: number; r: number }) {
+function YinYang({
+  cx,
+  cy,
+  r,
+  colors,
+}: {
+  cx: number;
+  cy: number;
+  r: number;
+  colors: ThemeDefinition;
+}) {
   const dotR = r * 0.12;
   // Vague en S : deux demi-cercles r/2 opposés (haut → centre → bas), sans l'arc du grand cercle
   const sCurve = `M 0 ${-r} A ${r / 2} ${r / 2} 0 0 1 0 0 A ${r / 2} ${r / 2} 0 0 0 0 ${r}`;
@@ -140,7 +153,7 @@ function YinYang({ cx, cy, r }: { cx: number; cy: number; r: number }) {
         cy={-r / 2}
         r={dotR}
         fill="none"
-        stroke={PURPLE_NEON}
+        stroke={colors.accentToNeon}
         strokeWidth={2}
         filter="url(#dotNeonGlow)"
       />
@@ -149,7 +162,7 @@ function YinYang({ cx, cy, r }: { cx: number; cy: number; r: number }) {
         cy={r / 2}
         r={dotR}
         fill="none"
-        stroke={CYAN_NEON}
+        stroke={colors.accentFromNeon}
         strokeWidth={2}
         filter="url(#dotNeonGlow)"
       />
@@ -157,7 +170,17 @@ function YinYang({ cx, cy, r }: { cx: number; cy: number; r: number }) {
   );
 }
 
-function HudDecorations({ cx, cy, r }: { cx: number; cy: number; r: number }) {
+function HudDecorations({
+  cx,
+  cy,
+  r,
+  colors,
+}: {
+  cx: number;
+  cy: number;
+  r: number;
+  colors: ThemeDefinition;
+}) {
   const bracket = 18;
   const bracketW = 6;
   return (
@@ -165,18 +188,18 @@ function HudDecorations({ cx, cy, r }: { cx: number; cy: number; r: number }) {
       <path
         d={`M ${cx - r - bracket} ${cy - 12} L ${cx - r - bracket - bracketW} ${cy - 12} L ${cx - r - bracket - bracketW} ${cy + 12} L ${cx - r - bracket} ${cy + 12}`}
         fill="none"
-        stroke={CYAN}
+        stroke={colors.accentFrom}
         strokeWidth={1}
       />
       <path
         d={`M ${cx + r + bracket} ${cy - 12} L ${cx + r + bracket + bracketW} ${cy - 12} L ${cx + r + bracket + bracketW} ${cy + 12} L ${cx + r + bracket} ${cy + 12}`}
         fill="none"
-        stroke={PURPLE}
+        stroke={colors.accentTo}
         strokeWidth={1}
       />
-      <path d={`M ${cx - 6} ${cy - r - 10} l 6 -6 l 6 6`} fill="none" stroke={CYAN} strokeWidth={1.5} strokeLinecap="round" />
-      <path d={`M ${cx - 6} ${cy - r - 16} l 6 -6 l 6 6`} fill="none" stroke={CYAN} strokeWidth={1} strokeLinecap="round" opacity={0.5} />
-      <path d={`M ${cx - 6} ${cy + r + 10} l 6 6 l 6 -6`} fill="none" stroke={PURPLE} strokeWidth={1.5} strokeLinecap="round" />
+      <path d={`M ${cx - 6} ${cy - r - 10} l 6 -6 l 6 6`} fill="none" stroke={colors.accentFrom} strokeWidth={1.5} strokeLinecap="round" />
+      <path d={`M ${cx - 6} ${cy - r - 16} l 6 -6 l 6 6`} fill="none" stroke={colors.accentFrom} strokeWidth={1} strokeLinecap="round" opacity={0.5} />
+      <path d={`M ${cx - 6} ${cy + r + 10} l 6 6 l 6 -6`} fill="none" stroke={colors.accentTo} strokeWidth={1.5} strokeLinecap="round" />
     </g>
   );
 }
@@ -201,7 +224,17 @@ function OrbitGroup({
 }
 
 /** Anneaux pointillés animés — rotation, pulsation, aller-retour */
-function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
+function MysticRings({
+  cx,
+  cy,
+  r,
+  colors,
+}: {
+  cx: number;
+  cy: number;
+  r: number;
+  colors: ThemeDefinition;
+}) {
   const inner = r + 10;
   const mid = r + 18;
   const outer = r + 26;
@@ -212,7 +245,7 @@ function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
         <circle
           r={outer}
           fill="none"
-          stroke={CYAN}
+          stroke={colors.accentFrom}
           strokeWidth={0.9}
           strokeDasharray="3 14"
           strokeLinecap="round"
@@ -225,7 +258,7 @@ function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
         <circle
           r={mid}
           fill="none"
-          stroke={PURPLE}
+          stroke={colors.accentTo}
           strokeWidth={0.75}
           strokeDasharray="2 10"
           strokeLinecap="round"
@@ -249,7 +282,7 @@ function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
         <circle
           r={outer + 10}
           fill="none"
-          stroke={CYAN}
+          stroke={colors.accentFrom}
           strokeWidth={0.5}
           strokeDasharray="8 22 4 28"
           strokeLinecap="round"
@@ -261,7 +294,7 @@ function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
         <circle
           r={mid - 4}
           fill="none"
-          stroke={PURPLE}
+          stroke={colors.accentTo}
           strokeWidth={0.6}
           strokeDasharray="6 18"
           strokeLinecap="round"
@@ -270,22 +303,28 @@ function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
       </OrbitGroup>
 
       <OrbitGroup cx={cx} cy={cy} className="karma-mystic-dot-orbit">
-        <circle cx={outer - 2} cy={0} r={2} fill={CYAN} opacity={0.7} style={{ filter: `drop-shadow(0 0 4px ${CYAN})` }} />
-        <circle cx={-(outer - 2)} cy={0} r={1.2} fill={CYAN} opacity={0.4} />
+        <circle cx={outer - 2} cy={0} r={2} fill={colors.accentFrom} opacity={0.7} style={{ filter: `drop-shadow(0 0 4px ${colors.accentFrom})` }} />
+        <circle cx={-(outer - 2)} cy={0} r={1.2} fill={colors.accentFrom} opacity={0.4} />
       </OrbitGroup>
       <OrbitGroup cx={cx} cy={cy} className="karma-mystic-dot-orbit-reverse">
-        <circle cx={0} cy={-(mid - 2)} r={1.6} fill={PURPLE} opacity={0.65} style={{ filter: `drop-shadow(0 0 4px ${PURPLE})` }} />
-        <circle cx={0} cy={mid - 2} r={1.2} fill={PURPLE} opacity={0.35} />
+        <circle cx={0} cy={-(mid - 2)} r={1.6} fill={colors.accentTo} opacity={0.65} style={{ filter: `drop-shadow(0 0 4px ${colors.accentTo})` }} />
+        <circle cx={0} cy={mid - 2} r={1.2} fill={colors.accentTo} opacity={0.35} />
       </OrbitGroup>
       <OrbitGroup cx={cx} cy={cy} className="karma-orbit-spin-cw">
-        <circle cx={inner} cy={0} r={1} fill="#e879f9" opacity={0.5} />
-        <circle cx={-inner} cy={0} r={0.8} fill="#67e8f9" opacity={0.45} />
+        <circle cx={inner} cy={0} r={1} fill={colors.accentToNeon} opacity={0.5} />
+        <circle cx={-inner} cy={0} r={0.8} fill={colors.accentFromNeon} opacity={0.45} />
       </OrbitGroup>
     </g>
   );
 }
 
-function GaugeDefs({ idPrefix = "" }: { idPrefix?: string }) {
+function GaugeDefs({
+  idPrefix = "",
+  colors,
+}: {
+  idPrefix?: string;
+  colors: ThemeDefinition;
+}) {
   const p = idPrefix;
   return (
     <defs>
@@ -304,26 +343,32 @@ function GaugeDefs({ idPrefix = "" }: { idPrefix?: string }) {
         </feMerge>
       </filter>
       <linearGradient id={`${p}yinyangRing`} x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor={CYAN_NEON} />
-        <stop offset="45%" stopColor={CYAN} />
-        <stop offset="55%" stopColor={PURPLE} />
-        <stop offset="100%" stopColor={PURPLE_NEON} />
+        <stop offset="0%" stopColor={colors.accentFromNeon} />
+        <stop offset="45%" stopColor={colors.accentFrom} />
+        <stop offset="55%" stopColor={colors.accentTo} />
+        <stop offset="100%" stopColor={colors.accentToNeon} />
       </linearGradient>
       <linearGradient id={`${p}hudRing`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor={CYAN} stopOpacity={0.6} />
+        <stop offset="0%" stopColor={colors.accentFrom} stopOpacity={0.6} />
         <stop offset="50%" stopColor="#64748b" stopOpacity={0.3} />
-        <stop offset="100%" stopColor={PURPLE} stopOpacity={0.6} />
+        <stop offset="100%" stopColor={colors.accentTo} stopOpacity={0.6} />
       </linearGradient>
     </defs>
   );
 }
 
-function HorizontalSegments({ filled }: { filled: number }) {
+function HorizontalSegments({
+  filled,
+  colors,
+}: {
+  filled: number;
+  colors: ThemeDefinition;
+}) {
   return (
     <div className="flex w-full gap-[3px]" role="img" aria-hidden>
       {Array.from({ length: SEGMENTS }, (_, i) => {
         const lit = i < filled;
-        const color = segmentColor(i, SEGMENTS, lit);
+        const color = segmentColor(i, SEGMENTS, lit, colors);
         return (
           <div
             key={i}
@@ -348,14 +393,16 @@ function KarmaGaugeHorizontal({
   max,
   dailyDecay,
   bare = false,
+  colors,
 }: {
   score: number;
   max: number;
   dailyDecay: number;
   bare?: boolean;
+  colors: ThemeDefinition;
 }) {
   const percent = Math.round((score / max) * 100);
-  const mood = getMood(percent);
+  const mood = getMood(percent, colors);
   const filledSegments = Math.round((score / max) * SEGMENTS);
 
   return (
@@ -365,15 +412,21 @@ function KarmaGaugeHorizontal({
         bare ? "card-gaming px-3 py-2" : "card-gaming px-4 py-3"
       )}
     >
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-purple-600/5" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom, color-mix(in srgb, var(--theme-accent-from) 8%, transparent), transparent, color-mix(in srgb, var(--theme-accent-to) 8%, transparent))",
+        }}
+      />
 
       <div className="relative flex items-center gap-4">
         <div className="min-w-0 flex-1">
-          <HorizontalSegments filled={filledSegments} />
+          <HorizontalSegments filled={filledSegments} colors={colors} />
         </div>
         <div className="karma-score-text shrink-0 text-right leading-none">
           <p className="font-game text-2xl font-black text-white">{score}</p>
-          <p className="mt-0.5 font-game text-xs text-purple-300/60">/ {max} KP</p>
+          <p className="mt-0.5 font-game text-xs text-theme-muted">/ {max} KP</p>
         </div>
       </div>
 
@@ -383,7 +436,7 @@ function KarmaGaugeHorizontal({
       >
         {mood.label}
       </p>
-      <p className="relative mt-0.5 text-center text-[11px] text-purple-300/45">
+      <p className="relative mt-0.5 text-center text-[11px] text-theme-muted-soft">
         −{dailyDecay} karma / jour d&apos;inactivité
       </p>
     </div>
@@ -398,6 +451,8 @@ export function KarmaGauge({
   variant = "full",
   bare = false,
 }: KarmaGaugeProps) {
+  const colors = useThemeColors();
+
   if (variant === "horizontal") {
     return (
       <KarmaGaugeHorizontal
@@ -405,20 +460,27 @@ export function KarmaGauge({
         max={max}
         dailyDecay={dailyDecay}
         bare={bare}
+        colors={colors}
       />
     );
   }
 
   const percent = Math.round((score / max) * 100);
-  const mood = getMood(percent);
+  const mood = getMood(percent, colors);
   const filledSegments = Math.round((score / max) * SEGMENTS);
 
   return (
     <div className="card-gaming relative w-full overflow-hidden px-4 py-6 pb-2 text-center">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-purple-600/5" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom, color-mix(in srgb, var(--theme-accent-from) 8%, transparent), transparent, color-mix(in srgb, var(--theme-accent-to) 8%, transparent))",
+        }}
+      />
 
       {username && (
-        <p className="relative mb-2 font-game text-sm text-purple-300/80">{username}</p>
+        <p className="relative mb-2 font-game text-sm text-theme-muted">{username}</p>
       )}
 
       <motion.div
@@ -433,10 +495,10 @@ export function KarmaGauge({
           aria-label={`Karma ${score} sur ${max}`}
           preserveAspectRatio="xMidYMid meet"
         >
-          <GaugeDefs />
+          <GaugeDefs colors={colors} />
 
-          <MysticRings cx={CX} cy={CY} r={SEG_RADIUS} />
-          <HudDecorations cx={CX} cy={CY} r={SEG_RADIUS} />
+          <MysticRings cx={CX} cy={CY} r={SEG_RADIUS} colors={colors} />
+          <HudDecorations cx={CX} cy={CY} r={SEG_RADIUS} colors={colors} />
 
           {Array.from({ length: SEGMENTS }, (_, i) => (
             <Segment
@@ -446,10 +508,11 @@ export function KarmaGauge({
               cy={CY}
               radius={SEG_RADIUS}
               lit={i < filledSegments}
+              colors={colors}
             />
           ))}
 
-          <YinYang cx={CX} cy={CY} r={YIN_R} />
+          <YinYang cx={CX} cy={CY} r={YIN_R} colors={colors} />
 
           <text
             x={CX}
@@ -489,7 +552,7 @@ export function KarmaGauge({
             x={CX}
             y={CY + YIN_R + 64}
             textAnchor="middle"
-            fill="#a78bfa"
+            fill={colors.glow}
             fillOpacity={0.6}
             fontSize={12}
             fontFamily="Rajdhani, sans-serif"

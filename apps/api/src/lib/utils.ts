@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { UserPublic } from "@karma/shared";
+import { DEFAULT_THEME_ID, UserPublic, isThemeId } from "@karma/shared";
 
 export function toUserPublic(user: User): UserPublic {
   return {
@@ -9,6 +9,7 @@ export function toUserPublic(user: User): UserPublic {
     role: user.role as UserPublic["role"],
     karmaScore: user.karmaScore,
     avatarUrl: user.avatarUrl,
+    themeId: isThemeId(user.themeId) ? user.themeId : DEFAULT_THEME_ID,
     createdAt: user.createdAt.toISOString(),
   };
 }

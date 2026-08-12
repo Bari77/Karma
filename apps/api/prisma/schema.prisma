@@ -34,6 +34,7 @@ model User {
   role         Role     @default(USER)
   karmaScore   Int      @default(50)
   avatarUrl    String?
+  themeId      String   @default("cyan-purple")
   lastDecayAt  DateTime @default(now())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

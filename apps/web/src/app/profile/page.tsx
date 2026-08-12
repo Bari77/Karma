@@ -7,13 +7,18 @@ import { Navbar } from "@/components/Navbar";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
+import { ThemeId } from "@karma/shared";
+import { ThemePicker } from "@/components/ThemePicker";
+import { useTheme } from "@/lib/theme-provider";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
+  const { setThemeId } = useTheme();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [themeId, setThemeIdLocal] = useState<ThemeId>("cyan-purple");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,13 +29,36 @@ export default function ProfilePage() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [themeLoading, setThemeLoading] = useState(false);
+  const [themeMsg, setThemeMsg] = useState("");
 
   useEffect(() => {
     if (user) {
       setUsername(user.username);
       setEmail(user.email);
+      setThemeIdLocal(user.themeId);
     }
   }, [user]);
+
+  const handleThemeSave = async () => {
+    if (!user) return;
+    if (themeId === user.themeId) {
+      setThemeMsg("Thème déjà actif");
+      return;
+    }
+    setThemeLoading(true);
+    setThemeMsg("");
+    try {
+      const updated = await api.updateProfile({ themeId });
+      setUser(updated);
+      setThemeId(updated.themeId);
+      setThemeMsg("Thème enregistré");
+    } catch (err) {
+      setThemeMsg(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setThemeLoading(false);
+    }
+  };
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +145,33 @@ export default function ProfilePage() {
         {user && (
           <div className="space-y-6">
             <section className="card-gaming p-6">
-              <h2 className="mb-4 font-semibold text-cyan-300">Avatar</h2>
+              <h2 className="mb-2 font-semibold text-theme-from">Apparence</h2>
+              <p className="mb-4 text-sm text-theme-muted">
+                Choisissez la palette de couleurs utilisée dans toute l&apos;application.
+              </p>
+              <ThemePicker
+                value={themeId}
+                onChange={(id) => {
+                  setThemeIdLocal(id);
+                  setThemeId(id);
+                }}
+                disabled={themeLoading}
+              />
+              <button
+                type="button"
+                disabled={themeLoading || !user || themeId === user.themeId}
+                onClick={handleThemeSave}
+                className="btn-primary mt-4 w-full text-sm"
+              >
+                {themeLoading ? "Enregistrement…" : "Enregistrer le thème"}
+              </button>
+              {themeMsg && (
+                <p className="mt-3 text-center text-sm text-theme-muted">{themeMsg}</p>
+              )}
+            </section>
+
+            <section className="card-gaming p-6">
+              <h2 className="mb-4 font-semibold text-theme-from">Avatar</h2>
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
                 <UserAvatar
                   username={user.username}
@@ -150,11 +204,11 @@ export default function ProfilePage() {
                       Supprimer l'avatar
                     </button>
                   )}
-                  <p className="text-xs text-purple-300/50">JPEG, PNG, WebP ou GIF — max 2 Mo</p>
+                  <p className="text-xs text-theme-muted">JPEG, PNG, WebP ou GIF — max 2 Mo</p>
                 </div>
               </div>
               {avatarMsg && (
-                <p className="mt-3 text-center text-sm text-purple-200">{avatarMsg}</p>
+                <p className="mt-3 text-center text-sm text-theme-muted">{avatarMsg}</p>
               )}
             </section>
 
@@ -162,9 +216,9 @@ export default function ProfilePage() {
               onSubmit={handleProfileSave}
               className="card-gaming space-y-4 p-6"
             >
-              <h2 className="font-semibold text-cyan-300">Informations</h2>
+              <h2 className="font-semibold text-theme-from">Informations</h2>
               <div>
-                <label htmlFor="profile-username" className="mb-1 block text-sm text-purple-300/70">
+                <label htmlFor="profile-username" className="mb-1 block text-sm text-theme-muted-soft">
                   Pseudo
                 </label>
                 <input
@@ -177,7 +231,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label htmlFor="profile-email" className="mb-1 block text-sm text-purple-300/70">
+                <label htmlFor="profile-email" className="mb-1 block text-sm text-theme-muted-soft">
                   Email
                 </label>
                 <input
@@ -190,7 +244,7 @@ export default function ProfilePage() {
                 />
               </div>
               {profileMsg && (
-                <p className="text-center text-sm text-purple-200">{profileMsg}</p>
+                <p className="text-center text-sm text-theme-muted">{profileMsg}</p>
               )}
               <button type="submit" disabled={profileLoading} className="btn-primary w-full">
                 {profileLoading ? "Enregistrement…" : "Enregistrer"}
@@ -198,9 +252,9 @@ export default function ProfilePage() {
             </motion.form>
 
             <form onSubmit={handlePasswordSave} className="card-gaming space-y-4 p-6">
-              <h2 className="font-semibold text-cyan-300">Mot de passe</h2>
+              <h2 className="font-semibold text-theme-from">Mot de passe</h2>
               <div>
-                <label htmlFor="current-password" className="mb-1 block text-sm text-purple-300/70">
+                <label htmlFor="current-password" className="mb-1 block text-sm text-theme-muted-soft">
                   Mot de passe actuel
                 </label>
                 <input
@@ -213,7 +267,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label htmlFor="new-password" className="mb-1 block text-sm text-purple-300/70">
+                <label htmlFor="new-password" className="mb-1 block text-sm text-theme-muted-soft">
                   Nouveau mot de passe
                 </label>
                 <input
@@ -227,7 +281,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label htmlFor="confirm-password" className="mb-1 block text-sm text-purple-300/70">
+                <label htmlFor="confirm-password" className="mb-1 block text-sm text-theme-muted-soft">
                   Confirmer le mot de passe
                 </label>
                 <input
@@ -241,7 +295,7 @@ export default function ProfilePage() {
                 />
               </div>
               {passwordMsg && (
-                <p className="text-center text-sm text-purple-200">{passwordMsg}</p>
+                <p className="text-center text-sm text-theme-muted">{passwordMsg}</p>
               )}
               <button type="submit" disabled={passwordLoading} className="btn-primary w-full">
                 {passwordLoading ? "Modification…" : "Changer le mot de passe"}

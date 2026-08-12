@@ -4,18 +4,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Thème par défaut (SSR / avant hydratation) — voir packages/shared/src/themes.ts ── */
 :root {
-  --karma-glow: #a855f7;
-  --karma-good: #22d3ee;
-  --karma-bad: #f43f5e;
-  --karma-bg: #0a0a12;
-  --karma-card: #12121f;
-  --karma-gradient-from: #22d3ee;
-  --karma-gradient-to: #c026d3;
+  --theme-accent-from: #22d3ee;
+  --theme-accent-to: #c026d3;
+  --theme-accent-from-neon: #00f0ff;
+  --theme-accent-to-neon: #e040fb;
+  --theme-accent-from-dim: #0e7490;
+  --theme-accent-to-dim: #581c87;
+  --theme-glow: #a855f7;
+}
+
+:root {
+  --theme-bg: #0a0a12;
+  --theme-card: #12121f;
+  --theme-good: var(--theme-accent-to);
+  --theme-bad: var(--theme-accent-from);
+  --theme-border: color-mix(in srgb, var(--theme-accent-to) 22%, transparent);
+  --theme-border-strong: color-mix(in srgb, var(--theme-accent-to) 40%, transparent);
+  --theme-text-muted: color-mix(in srgb, var(--theme-accent-to) 55%, #cbd5e1);
+  --theme-text-muted-soft: color-mix(in srgb, var(--theme-accent-to) 40%, #94a3b8);
+  --theme-nav-active-bg: color-mix(in srgb, var(--theme-accent-to) 30%, transparent);
+  --theme-shadow-from: color-mix(in srgb, var(--theme-accent-from) 25%, transparent);
+  --theme-shadow-to: color-mix(in srgb, var(--theme-accent-to) 20%, transparent);
+  --theme-shadow-from-strong: color-mix(in srgb, var(--theme-accent-from) 35%, transparent);
+  --theme-shadow-to-strong: color-mix(in srgb, var(--theme-accent-to) 30%, transparent);
+
+  /* Legacy aliases */
+  --karma-glow: var(--theme-glow);
+  --karma-good: var(--theme-good);
+  --karma-bad: var(--theme-bad);
+  --karma-bg: var(--theme-bg);
+  --karma-card: var(--theme-card);
+  --karma-gradient-from: var(--theme-accent-from);
+  --karma-gradient-to: var(--theme-accent-to);
 }
 
 body {
-  background: var(--karma-bg);
+  background: var(--theme-bg);
   color: #e2e8f0;
   font-family: 'Rajdhani', sans-serif;
   min-height: 100vh;
@@ -25,81 +51,162 @@ h1, h2, h3, .font-game {
   font-family: 'Orbitron', sans-serif;
 }
 
+@layer utilities {
+  .text-theme-from { color: var(--theme-accent-from); }
+  .text-theme-to { color: var(--theme-accent-to); }
+  .text-theme-good { color: var(--theme-good); }
+  .text-theme-bad { color: var(--theme-bad); }
+  .text-theme-muted { color: var(--theme-text-muted); }
+  .text-theme-muted-soft { color: var(--theme-text-muted-soft); }
+  .border-theme-from { border-color: var(--theme-accent-from); }
+  .border-theme-to { border-color: var(--theme-accent-to); }
+  .border-theme-good { border-color: var(--theme-good); }
+  .border-theme-bad { border-color: var(--theme-bad); }
+  .border-theme-strong { border-color: var(--theme-border-strong); }
+  .bg-theme-nav-active { background-color: var(--theme-nav-active-bg); }
+  .bg-theme-gradient {
+    background-image: linear-gradient(to right, var(--theme-accent-from), var(--theme-accent-to));
+  }
+  .from-theme-from { --tw-gradient-from: var(--theme-accent-from) var(--tw-gradient-from-position); --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+  .to-theme-to { --tw-gradient-to: var(--theme-accent-to) var(--tw-gradient-to-position); }
+  .via-theme-from { --tw-gradient-via: var(--theme-accent-from) var(--tw-gradient-via-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+  .ring-theme-from { --tw-ring-color: color-mix(in srgb, var(--theme-accent-from) 40%, transparent); }
+  .ring-theme-to { --tw-ring-color: color-mix(in srgb, var(--theme-accent-to) 40%, transparent); }
+  .shadow-theme { box-shadow: 0 4px 20px var(--theme-shadow-from), 0 4px 20px var(--theme-shadow-to); }
+  .shadow-theme-strong { box-shadow: 0 4px 24px var(--theme-shadow-from-strong), 0 4px 24px var(--theme-shadow-to-strong); }
+}
+
 @layer components {
   .card-gaming {
-    @apply rounded-2xl border border-purple-500/20 bg-karma-card/80 backdrop-blur-sm shadow-lg shadow-purple-900/20;
+    @apply rounded-2xl border bg-karma-card/80 backdrop-blur-sm shadow-lg;
+    border-color: var(--theme-border);
+    box-shadow: 0 10px 15px -3px var(--theme-shadow-to);
   }
 
   .btn-primary {
-    @apply rounded-xl bg-gradient-to-r from-cyan-400 to-purple-600 px-6 py-3 font-semibold text-white transition hover:scale-105 active:scale-95;
-    box-shadow:
-      0 4px 20px rgba(34, 211, 238, 0.25),
-      0 4px 20px rgba(192, 38, 211, 0.2);
+    @apply rounded-xl px-6 py-3 font-semibold text-white transition hover:scale-105 active:scale-95;
+    background-image: linear-gradient(to right, var(--theme-accent-from), var(--theme-accent-to));
+    box-shadow: 0 4px 20px var(--theme-shadow-from), 0 4px 20px var(--theme-shadow-to);
   }
 
   .btn-primary:hover {
-    box-shadow:
-      0 4px 24px rgba(34, 211, 238, 0.35),
-      0 4px 24px rgba(192, 38, 211, 0.3);
+    box-shadow: 0 4px 24px var(--theme-shadow-from-strong), 0 4px 24px var(--theme-shadow-to-strong);
   }
 
   .btn-secondary {
-    @apply rounded-xl border border-cyan-400/30 bg-gradient-to-r from-cyan-500/15 to-purple-600/25 px-6 py-3 font-semibold text-cyan-100 transition hover:border-purple-400/50 hover:from-cyan-500/25 hover:to-purple-600/35;
+    @apply rounded-xl px-6 py-3 font-semibold transition;
+    border: 1px solid color-mix(in srgb, var(--theme-accent-from) 30%, transparent);
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--theme-accent-from) 15%, transparent),
+      color-mix(in srgb, var(--theme-accent-to) 25%, transparent)
+    );
+    color: color-mix(in srgb, var(--theme-accent-from) 85%, white);
+  }
+
+  .btn-secondary:hover {
+    border-color: color-mix(in srgb, var(--theme-accent-to) 50%, transparent);
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--theme-accent-from) 25%, transparent),
+      color-mix(in srgb, var(--theme-accent-to) 35%, transparent)
+    );
   }
 
   .btn-good {
-    @apply rounded-xl bg-gradient-to-r from-cyan-400 to-purple-600 px-4 py-2 font-semibold text-white transition hover:scale-[1.02] active:scale-[0.98];
-    box-shadow:
-      0 2px 12px rgba(34, 211, 238, 0.2),
-      0 2px 12px rgba(192, 38, 211, 0.15);
+    @apply rounded-xl px-4 py-2 font-semibold text-white transition hover:scale-[1.02] active:scale-[0.98];
+    background-image: linear-gradient(to right, var(--theme-accent-from), var(--theme-accent-to));
+    box-shadow: 0 2px 12px var(--theme-shadow-from), 0 2px 12px var(--theme-shadow-to);
   }
 
   .btn-bad {
-    @apply rounded-xl border border-purple-500/40 bg-gradient-to-r from-cyan-900/50 to-purple-900/60 px-4 py-2 font-semibold text-purple-100 transition hover:from-cyan-800/60 hover:to-purple-800/70 hover:border-purple-400/50;
+    @apply rounded-xl px-4 py-2 font-semibold transition;
+    border: 1px solid color-mix(in srgb, var(--theme-accent-to) 40%, transparent);
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--theme-accent-from) 15%, transparent),
+      color-mix(in srgb, var(--theme-accent-to) 35%, transparent)
+    );
+    color: color-mix(in srgb, var(--theme-accent-to) 85%, white);
+  }
+
+  .btn-bad:hover {
+    border-color: color-mix(in srgb, var(--theme-accent-to) 55%, transparent);
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--theme-accent-from) 25%, transparent),
+      color-mix(in srgb, var(--theme-accent-to) 45%, transparent)
+    );
   }
 
   .btn-toggle {
-    @apply flex-1 rounded-xl bg-black/30 py-3 font-semibold text-purple-300/60 transition;
+    @apply flex-1 rounded-xl bg-black/30 py-3 font-semibold transition;
+    color: var(--theme-text-muted-soft);
   }
 
   .btn-toggle-active {
-    @apply bg-gradient-to-r from-cyan-400 to-purple-600 text-white ring-2 ring-purple-400/40;
-    box-shadow:
-      0 2px 12px rgba(34, 211, 238, 0.2),
-      0 2px 12px rgba(192, 38, 211, 0.15);
+    @apply text-white ring-2;
+    background-image: linear-gradient(to right, var(--theme-accent-from), var(--theme-accent-to));
+    --tw-ring-color: color-mix(in srgb, var(--theme-accent-to) 40%, transparent);
+    box-shadow: 0 2px 12px var(--theme-shadow-from), 0 2px 12px var(--theme-shadow-to);
   }
 
   .input-gaming {
-    @apply h-12 w-full rounded-xl border border-purple-500/30 bg-black/40 px-4 text-white placeholder-purple-300/40 outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20;
+    @apply h-12 w-full rounded-xl bg-black/40 px-4 text-white outline-none;
+    border: 1px solid color-mix(in srgb, var(--theme-accent-to) 30%, transparent);
+  }
+
+  .input-gaming::placeholder {
+    color: color-mix(in srgb, var(--theme-accent-to) 40%, transparent);
+  }
+
+  .input-gaming:focus {
+    border-color: color-mix(in srgb, var(--theme-accent-from) 60%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent-from) 20%, transparent);
   }
 
   .select-gaming {
-    @apply h-12 w-full rounded-xl border border-purple-500/30 bg-black/40 px-4 text-white outline-none transition;
+    @apply h-12 w-full rounded-xl bg-black/40 px-4 text-white outline-none transition;
+    border: 1px solid color-mix(in srgb, var(--theme-accent-to) 30%, transparent);
   }
 
   .select-gaming:hover:not(:disabled) {
-    @apply border-purple-400/40;
+    border-color: color-mix(in srgb, var(--theme-accent-to) 40%, transparent);
   }
 
   .select-gaming:focus-visible {
-    @apply border-cyan-400/60 ring-2 ring-cyan-400/20;
+    border-color: color-mix(in srgb, var(--theme-accent-from) 60%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent-from) 20%, transparent);
   }
 
   .select-gaming-menu {
-    @apply rounded-xl border border-purple-500/30 bg-karma-card shadow-xl shadow-purple-900/40;
+    @apply rounded-xl border bg-karma-card shadow-xl;
+    border-color: color-mix(in srgb, var(--theme-accent-to) 30%, transparent);
+    box-shadow: 0 20px 25px -5px var(--theme-shadow-to);
   }
 
   .select-gaming-option {
-    @apply px-3 py-2.5 text-sm text-purple-100 transition hover:bg-purple-900/50 hover:text-white;
+    @apply px-3 py-2.5 text-sm transition;
+    color: color-mix(in srgb, var(--theme-accent-to) 75%, white);
+  }
+
+  .select-gaming-option:hover {
+    background-color: color-mix(in srgb, var(--theme-accent-to) 25%, transparent);
+    color: white;
   }
 
   .select-gaming-option-active {
-    @apply bg-gradient-to-r from-cyan-500/20 to-purple-600/25 text-cyan-200;
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--theme-accent-from) 20%, transparent),
+      color-mix(in srgb, var(--theme-accent-to) 25%, transparent)
+    );
+    color: color-mix(in srgb, var(--theme-accent-from) 90%, white);
   }
 
   .actions-scroll {
     scrollbar-width: thin;
-    scrollbar-color: rgba(168, 85, 247, 0.45) transparent;
+    scrollbar-color: color-mix(in srgb, var(--theme-accent-to) 45%, transparent) transparent;
     overflow-x: hidden;
     scroll-padding-top: 0.5rem;
     padding-block: 2px;
@@ -122,7 +229,7 @@ h1, h2, h3, .font-game {
   }
 
   .actions-scroll::-webkit-scrollbar-thumb {
-    background: rgba(168, 85, 247, 0.45);
+    background: color-mix(in srgb, var(--theme-accent-to) 45%, transparent);
     border-radius: 9999px;
   }
 
@@ -131,21 +238,50 @@ h1, h2, h3, .font-game {
   }
 
   .karma-progress-fill {
-    @apply h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-300 to-purple-500;
+    @apply h-full rounded-full;
+    background-image: linear-gradient(
+      to right,
+      var(--theme-accent-from),
+      color-mix(in srgb, var(--theme-accent-from) 80%, white),
+      var(--theme-accent-to)
+    );
     box-shadow:
-      0 0 8px rgba(34, 211, 238, 0.4),
-      0 0 14px rgba(192, 38, 211, 0.25);
+      0 0 8px var(--theme-shadow-from-strong),
+      0 0 14px var(--theme-shadow-to);
+  }
+
+  .theme-swatch {
+    @apply relative overflow-hidden rounded-xl border-2 transition hover:scale-[1.02];
+    border-color: transparent;
+  }
+
+  .theme-swatch-active {
+    border-color: var(--theme-accent-from);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent-from) 30%, transparent);
+  }
+
+  .theme-swatch-preview {
+    @apply flex h-14 w-full;
+  }
+
+  .theme-swatch-preview-from {
+    @apply flex-1;
+  }
+
+  .theme-swatch-preview-to {
+    @apply flex-1;
   }
 }
 
-/* Animated background grid */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--theme-accent-to) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--theme-accent-to) 3%, transparent) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 .glow-text {
-  text-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(34, 211, 238, 0.4);
+  text-shadow:
+    0 0 20px color-mix(in srgb, var(--theme-glow) 80%, transparent),
+    0 0 40px color-mix(in srgb, var(--theme-accent-from) 40%, transparent);
 }

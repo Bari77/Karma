@@ -76,9 +76,9 @@ export default function RegisterPage() {
             {loading ? "Création..." : "Commencer avec 50 karma"}
           </button>
         </div>
-        <p className="mt-4 text-center text-sm text-purple-300/60">
+        <p className="mt-4 text-center text-sm text-theme-muted">
           Déjà inscrit ?{" "}
-          <Link href="/login" className="text-cyan-400 hover:underline">
+          <Link href="/login" className="text-theme-from hover:underline">
             Se connecter
           </Link>
         </p>

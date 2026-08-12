@@ -53,7 +53,11 @@ export const api = {
 
   me: () => request<import("@karma/shared").UserPublic>("/users/me"),
 
-  updateProfile: (body: { username?: string; email?: string }) =>
+  updateProfile: (body: {
+    username?: string;
+    email?: string;
+    themeId?: import("@karma/shared").ThemeId;
+  }) =>
     request<import("@karma/shared").UserPublic>("/users/me", {
       method: "PATCH",
       body: JSON.stringify(body),

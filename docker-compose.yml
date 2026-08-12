@@ -52,6 +52,7 @@ services:
     image: karma-api
     environment:
       DATABASE_URL: postgresql://karma:karma_secret@db:5432/karma?schema=public
+      SEED_DEV_USERS: "true"
     command: sh -c "npx tsx prisma/seed.ts"
     depends_on:
       api:

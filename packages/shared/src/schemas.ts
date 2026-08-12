@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ActionType, Role } from "./types";
+import { THEME_IDS } from "./themes";
 
 export const registerSchema = z.object({
   email: z.string().email(),
@@ -37,9 +38,12 @@ export const updateUserRoleSchema = z.object({
   role: z.nativeEnum(Role),
 });
 
+export const themeIdSchema = z.enum(THEME_IDS);
+
 export const updateProfileSchema = z.object({
   username: z.string().min(3).max(30).optional(),
   email: z.string().email().optional(),
+  themeId: themeIdSchema.optional(),
 });
 
 export const changePasswordSchema = z.object({

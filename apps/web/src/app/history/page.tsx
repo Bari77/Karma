@@ -106,7 +106,7 @@ export default function HistoryPage() {
                 "rounded-xl px-4 py-2 text-sm font-semibold transition",
                 period === opt.value
                   ? "btn-toggle-active"
-                  : "bg-black/30 text-purple-300/60 hover:text-purple-200"
+                  : "bg-black/30 text-theme-muted hover:text-theme-muted"
               )}
             >
               {opt.label}
@@ -126,14 +126,14 @@ export default function HistoryPage() {
                 >
                   <div className="min-w-0 pr-3">
                     <p className="font-semibold">{log.reason}</p>
-                    <p className="text-xs text-purple-300/50">
+                    <p className="text-xs text-theme-muted">
                       {new Date(log.createdAt).toLocaleString("fr-FR")}
                     </p>
                   </div>
                   <span
                     className={clsx(
                       "font-game shrink-0 text-xl font-bold",
-                      log.pointsChange >= 0 ? "text-cyan-400" : "text-rose-400"
+                      log.pointsChange >= 0 ? "text-theme-good" : "text-theme-bad"
                     )}
                   >
                     {log.pointsChange >= 0 ? "+" : ""}
@@ -143,7 +143,7 @@ export default function HistoryPage() {
               ))}
 
           {!loading && logs.length === 0 && (
-            <p className="py-8 text-center text-purple-300/50">
+            <p className="py-8 text-center text-theme-muted">
               Aucun historique pour cette période
             </p>
           )}

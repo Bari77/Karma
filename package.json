@@ -7,10 +7,13 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
-    "dev:api": "npm run dev -w @karma/api",
+    "dev:api": "npm run build -w @karma/shared && npm run dev -w @karma/api",
     "dev:web": "npm run dev -w @karma/web",
     "build": "npm run build --workspaces --if-present",
     "db:migrate": "npm run db:migrate -w @karma/api",
-    "db:seed": "npm run db:seed -w @karma/api"
+    "db:seed": "npm run db:seed -w @karma/api",
+    "db:seed:actions": "npm run db:seed:actions -w @karma/api",
+    "db:seed:dev": "npm run db:seed:dev -w @karma/api",
+    "db:promote-super-admin": "npm run db:promote-super-admin -w @karma/api"
   }
 }

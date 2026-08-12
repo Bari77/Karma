@@ -78,14 +78,14 @@ export default function GroupsPage() {
         </h1>
 
         {message && (
-          <p className="mb-4 rounded-lg bg-purple-900/40 p-3 text-center text-purple-200">
+          <p className="mb-4 rounded-lg bg-purple-900/40 p-3 text-center text-theme-muted">
             {message}
           </p>
         )}
 
         <div className="mb-8 grid gap-4 md:grid-cols-2">
           <form onSubmit={handleCreate} className="card-gaming space-y-3 p-5">
-            <h2 className="font-semibold text-cyan-300">Créer un groupe</h2>
+            <h2 className="font-semibold text-theme-from">Créer un groupe</h2>
             <input
               className="input-gaming"
               placeholder="Nom du groupe"
@@ -120,7 +120,7 @@ export default function GroupsPage() {
           </form>
         </div>
 
-        <h2 className="font-game mb-4 text-lg text-purple-200">Mes groupes</h2>
+        <h2 className="font-game mb-4 text-lg text-theme-muted">Mes groupes</h2>
         <div className="space-y-3">
           {loading
             ? Array.from({ length: 2 }).map((_, i) => <GroupCardSkeleton key={i} />)
@@ -131,14 +131,14 @@ export default function GroupsPage() {
                       <div>
                         <h3 className="font-game text-lg font-bold text-white">{g.name}</h3>
                         {g.description && (
-                          <p className="mt-1 text-sm text-purple-300/60">{g.description}</p>
+                          <p className="mt-1 text-sm text-theme-muted">{g.description}</p>
                         )}
-                        <p className="mt-2 text-xs text-purple-300/50">
+                        <p className="mt-2 text-xs text-theme-muted">
                           {g.memberCount} joueur{g.memberCount > 1 ? "s" : ""}
                           {g.isOwner && " · Propriétaire"}
                         </p>
                       </div>
-                      <span className="rounded-lg bg-purple-900/50 px-2 py-1 font-mono text-xs text-cyan-400">
+                      <span className="rounded-lg bg-purple-900/50 px-2 py-1 font-mono text-xs text-white">
                         {g.inviteCode}
                       </span>
                     </div>
@@ -146,7 +146,7 @@ export default function GroupsPage() {
                 </motion.div>
               ))}
           {!loading && groups.length === 0 && (
-            <p className="text-center text-purple-300/50">
+            <p className="text-center text-theme-muted">
               Aucun groupe — créez-en un ou rejoignez avec un code !
             </p>
           )}

@@ -67,7 +67,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
               >
                 {state.title ?? "Confirmation"}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-purple-200/90">
+              <p className="mt-3 text-sm leading-relaxed text-theme-muted/90">
                 {state.message}
               </p>
               <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

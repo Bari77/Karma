@@ -46,19 +46,19 @@ export default function ProposePage() {
           <h1 className="font-game mb-2 text-2xl font-bold glow-text">
             Proposer une action
           </h1>
-          <p className="mb-6 text-sm text-purple-300/60">
+          <p className="mb-6 text-sm text-theme-muted">
             Ta proposition sera examinée par un administrateur avant d&apos;apparaître dans le jeu.
           </p>
 
           {message && (
-            <p className="mb-4 rounded-lg bg-purple-900/40 p-3 text-center text-purple-200">
+            <p className="mb-4 rounded-lg bg-purple-900/40 p-3 text-center text-theme-muted">
               {message}
             </p>
           )}
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="propose-label" className="mb-1 block text-sm text-purple-300/70">
+              <label htmlFor="propose-label" className="mb-1 block text-sm text-theme-muted-soft">
                 Libellé
               </label>
               <input
@@ -72,7 +72,7 @@ export default function ProposePage() {
               />
             </div>
             <div>
-              <label htmlFor="propose-points" className="mb-1 block text-sm text-purple-300/70">
+              <label htmlFor="propose-points" className="mb-1 block text-sm text-theme-muted-soft">
                 Points
               </label>
               <input
@@ -86,7 +86,7 @@ export default function ProposePage() {
               />
             </div>
             <div>
-              <span className="mb-1 block text-sm text-purple-300/70">Type</span>
+              <span className="mb-1 block text-sm text-theme-muted-soft">Type</span>
               <div className="flex gap-3">
                 <button
                   type="button"
