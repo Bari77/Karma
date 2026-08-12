@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import clsx from "clsx";
 import type { ReactNode } from "react";
 import { useThemeColors } from "@/lib/use-theme-colors";
-import type { ThemeDefinition } from "@karma/shared/themes";
+import type { ThemeDefinition } from "@karma/shared";
 import "./karma-gauge.css";
 
 interface KarmaGaugeProps {
