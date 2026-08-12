@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --karma-glow: #a855f7;
+  --karma-good: #22d3ee;
+  --karma-bad: #f43f5e;
+  --karma-bg: #0a0a12;
+  --karma-card: #12121f;
+  --karma-gradient-from: #22d3ee;
+  --karma-gradient-to: #c026d3;
+}
+
+body {
+  background: var(--karma-bg);
+  color: #e2e8f0;
+  font-family: 'Rajdhani', sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, .font-game {
+  font-family: 'Orbitron', sans-serif;
+}
+
+@layer components {
+  .card-gaming {
+    @apply rounded-2xl border border-purple-500/20 bg-karma-card/80 backdrop-blur-sm shadow-lg shadow-purple-900/20;
+  }
+
+  .btn-primary {
+    @apply rounded-xl bg-gradient-to-r from-cyan-400 to-purple-600 px-6 py-3 font-semibold text-white transition hover:scale-105 active:scale-95;
+    box-shadow:
+      0 4px 20px rgba(34, 211, 238, 0.25),
+      0 4px 20px rgba(192, 38, 211, 0.2);
+  }
+
+  .btn-primary:hover {
+    box-shadow:
+      0 4px 24px rgba(34, 211, 238, 0.35),
+      0 4px 24px rgba(192, 38, 211, 0.3);
+  }
+
+  .btn-secondary {
+    @apply rounded-xl border border-cyan-400/30 bg-gradient-to-r from-cyan-500/15 to-purple-600/25 px-6 py-3 font-semibold text-cyan-100 transition hover:border-purple-400/50 hover:from-cyan-500/25 hover:to-purple-600/35;
+  }
+
+  .btn-good {
+    @apply rounded-xl bg-gradient-to-r from-cyan-400 to-purple-600 px-4 py-2 font-semibold text-white transition hover:scale-[1.02] active:scale-[0.98];
+    box-shadow:
+      0 2px 12px rgba(34, 211, 238, 0.2),
+      0 2px 12px rgba(192, 38, 211, 0.15);
+  }
+
+  .btn-bad {
+    @apply rounded-xl border border-purple-500/40 bg-gradient-to-r from-cyan-900/50 to-purple-900/60 px-4 py-2 font-semibold text-purple-100 transition hover:from-cyan-800/60 hover:to-purple-800/70 hover:border-purple-400/50;
+  }
+
+  .btn-toggle {
+    @apply flex-1 rounded-xl bg-black/30 py-3 font-semibold text-purple-300/60 transition;
+  }
+
+  .btn-toggle-active {
+    @apply bg-gradient-to-r from-cyan-400 to-purple-600 text-white ring-2 ring-purple-400/40;
+    box-shadow:
+      0 2px 12px rgba(34, 211, 238, 0.2),
+      0 2px 12px rgba(192, 38, 211, 0.15);
+  }
+
+  .input-gaming {
+    @apply h-12 w-full rounded-xl border border-purple-500/30 bg-black/40 px-4 text-white placeholder-purple-300/40 outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20;
+  }
+
+  .select-gaming {
+    @apply h-12 w-full rounded-xl border border-purple-500/30 bg-black/40 px-4 text-white outline-none transition;
+  }
+
+  .select-gaming:hover:not(:disabled) {
+    @apply border-purple-400/40;
+  }
+
+  .select-gaming:focus-visible {
+    @apply border-cyan-400/60 ring-2 ring-cyan-400/20;
+  }
+
+  .select-gaming-menu {
+    @apply rounded-xl border border-purple-500/30 bg-karma-card shadow-xl shadow-purple-900/40;
+  }
+
+  .select-gaming-option {
+    @apply px-3 py-2.5 text-sm text-purple-100 transition hover:bg-purple-900/50 hover:text-white;
+  }
+
+  .select-gaming-option-active {
+    @apply bg-gradient-to-r from-cyan-500/20 to-purple-600/25 text-cyan-200;
+  }
+
+  .actions-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(168, 85, 247, 0.45) transparent;
+    overflow-x: hidden;
+    padding-block: 2px;
+  }
+
+  .actions-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .actions-scroll::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.45);
+    border-radius: 9999px;
+  }
+
+  .actions-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .karma-progress-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-300 to-purple-500;
+    box-shadow:
+      0 0 8px rgba(34, 211, 238, 0.4),
+      0 0 14px rgba(192, 38, 211, 0.25);
+  }
+}
+
+/* Animated background grid */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(34, 211, 238, 0.4);
+}

@@ -1,0 +1,128 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ActionType {
+  GOOD
+  BAD
+}
+
+enum ActionStatus {
+  ACTIVE
+  PENDING
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  karmaScore   Int      @default(50)
+  avatarUrl    String?
+  lastDecayAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  proposedActions Action[]   @relation("ProposedActions")
+  validatedActions Action[]  @relation("ValidatedActions")
+  karmaLogs       KarmaLog[]
+  actionLogs      UserActionLog[]
+  ownedGroups     Group[]       @relation("OwnedGroups")
+  groupMembers    GroupMember[]
+  actionFavorites UserActionFavorite[]
+}
+
+model Action {
+  id            String       @id @default(cuid())
+  label         String
+  points        Int
+  type          ActionType
+  cooldownDays  Int          @default(1)
+  status        ActionStatus @default(PENDING)
+  proposedById  String?
+  validatedById String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  proposedBy  User? @relation("ProposedActions", fields: [proposedById], references: [id])
+  validatedBy User? @relation("ValidatedActions", fields: [validatedById], references: [id])
+  karmaLogs   KarmaLog[]
+  actionLogs  UserActionLog[]
+  favorites   UserActionFavorite[]
+}
+
+model KarmaLog {
+  id           String   @id @default(cuid())
+  userId       String
+  actionId     String?
+  pointsChange Int
+  reason       String
+  createdAt    DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action Action? @relation(fields: [actionId], references: [id], onDelete: SetNull)
+}
+
+model UserActionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  actionId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action Action @relation(fields: [actionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, actionId, createdAt])
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  inviteCode  String   @unique
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner   User          @relation("OwnedGroups", fields: [ownerId], references: [id], onDelete: Cascade)
+  members GroupMember[]
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model UserActionFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  actionId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action Action @relation(fields: [actionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, actionId])
+}

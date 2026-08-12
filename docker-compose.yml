@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: karma
+      POSTGRES_PASSWORD: karma_secret
+      POSTGRES_DB: karma
+    ports:
+      - "5432:5432"
+    volumes:
+      - karma_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U karma -d karma"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: karma-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    environment:
+      DATABASE_URL: postgresql://karma:karma_secret@db:5432/karma?schema=public
+      JWT_SECRET: change-me-in-production-use-a-long-random-string
+      KARMA_DAILY_DECAY: 5
+      KARMA_MAX: 100
+      PORT: 3001
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  seed:
+    image: karma-api
+    environment:
+      DATABASE_URL: postgresql://karma:karma_secret@db:5432/karma?schema=public
+    command: sh -c "npx tsx prisma/seed.ts"
+    depends_on:
+      api:
+        condition: service_started
+    profiles:
+      - seed
+
+volumes:
+  karma_pg_data:
