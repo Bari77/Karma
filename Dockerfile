@@ -19,6 +19,7 @@ RUN npm ci --workspace=@karma/api --include-workspace-root 2>/dev/null || npm in
 
 FROM api-base AS api-builder
 COPY --from=api-deps /app/node_modules ./node_modules
+COPY --from=api-deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY . .
 RUN npm run build -w @karma/shared
 RUN npm run db:generate -w @karma/api
@@ -34,6 +35,7 @@ LABEL org.opencontainers.image.version="${VERSION}" \
       org.karma.app-env="${APP_ENV}" \
       org.karma.run-number="${RUN_NUMBER}"
 COPY --from=api-builder /app/node_modules ./node_modules
+COPY --from=api-builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=api-builder /app/packages/shared ./packages/shared
 COPY --from=api-builder /app/apps/api/dist ./apps/api/dist
 COPY --from=api-builder /app/apps/api/prisma ./apps/api/prisma
