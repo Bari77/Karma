@@ -11,7 +11,22 @@ export function Skeleton({ className }: { className?: string }) {
   );
 }
 
-export function KarmaGaugeSkeleton() {
+export function KarmaGaugeSkeleton({ horizontal = false }: { horizontal?: boolean }) {
+  if (horizontal) {
+    return (
+      <div className="card-gaming px-4 py-3">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-3 flex-1 rounded-sm" />
+          <div className="shrink-0 space-y-1">
+            <Skeleton className="ml-auto h-7 w-10" />
+            <Skeleton className="h-3 w-14" />
+          </div>
+        </div>
+        <Skeleton className="mx-auto mt-2 h-4 w-36" />
+      </div>
+    );
+  }
+
   return (
     <div className="card-gaming p-6">
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-4">

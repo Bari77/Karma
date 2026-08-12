@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -22,6 +23,7 @@ function navLinkClass(active: boolean) {
 export function Navbar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const dashboardActive =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
@@ -42,8 +44,25 @@ export function Navbar() {
     links.push({ href: "/admin/users", label: "Utilisateurs" });
   }
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
   const jeuLink = user ? (
-    <Link href="/dashboard" className={clsx(navLinkClass(dashboardActive), "inline-flex items-center gap-2")}>
+    <Link
+      href="/dashboard"
+      onClick={() => setMenuOpen(false)}
+      className={clsx(navLinkClass(dashboardActive), "inline-flex items-center gap-2")}
+    >
       <span>Jeu</span>
       <span className="font-game text-xs font-bold text-cyan-400">{user.karmaScore} KP</span>
     </Link>
@@ -51,14 +70,16 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-karma-bg/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href="/dashboard" className="font-game text-xl font-bold glow-text">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:py-4">
+        <Link
+          href="/dashboard"
+          className="min-w-0 shrink font-game text-base font-bold glow-text whitespace-nowrap sm:text-lg md:text-xl"
+        >
           ⚡ Karma Quest
         </Link>
 
         {user && (
-          <div className="flex items-center gap-4">
-            <div className="md:hidden">{jeuLink}</div>
+          <>
             <div className="hidden items-center gap-1 md:flex">
               {jeuLink}
               {links.map((l) => {
@@ -71,11 +92,12 @@ export function Navbar() {
                 );
               })}
             </div>
-            <div className="flex items-center gap-3">
+
+            <div className="flex shrink-0 items-center gap-2 md:gap-3">
               <Link
                 href="/profile"
                 className={clsx(
-                  "flex items-center gap-2 rounded-lg px-2 py-1 transition",
+                  "hidden items-center gap-2 rounded-lg px-2 py-1 transition sm:flex",
                   pathname === "/profile"
                     ? "bg-purple-600/30 text-cyan-300"
                     : "text-purple-300/80 hover:bg-purple-900/30 hover:text-white"
@@ -87,17 +109,100 @@ export function Navbar() {
                   avatarUrl={user.avatarUrl}
                   size="sm"
                 />
-                <span className="hidden text-sm font-semibold sm:inline">
+                <span className="hidden text-sm font-semibold lg:inline">
                   {user.username}
                 </span>
               </Link>
-              <button onClick={logout} className="btn-secondary py-2 text-sm">
+
+              <button
+                type="button"
+                onClick={logout}
+                className="btn-secondary hidden py-2 text-sm md:inline-flex"
+              >
                 Déconnexion
               </button>
+
+              <button
+                type="button"
+                aria-expanded={menuOpen}
+                aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                onClick={() => setMenuOpen((o) => !o)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-purple-500/30 bg-karma-card/60 text-purple-100 transition hover:border-purple-400/50 hover:text-white md:hidden"
+              >
+                <span className="sr-only">Menu</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  {menuOpen ? (
+                    <>
+                      <path d="M6 6l12 12M18 6 6 18" />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M4 7h16M4 12h16M4 17h16" />
+                    </>
+                  )}
+                </svg>
+              </button>
             </div>
-          </div>
+          </>
         )}
       </div>
+
+      {user && menuOpen && (
+        <div className="border-t border-purple-500/15 bg-karma-bg/98 px-4 py-3 backdrop-blur-md md:hidden">
+          <div className="mx-auto flex max-w-6xl flex-col gap-1">
+            {jeuLink}
+            {links.map((l) => {
+              const active =
+                pathname === l.href || pathname.startsWith(l.href + "/");
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={navLinkClass(active)}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
+            <Link
+              href="/profile"
+              onClick={() => setMenuOpen(false)}
+              className={clsx(
+                "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition",
+                pathname === "/profile"
+                  ? "bg-purple-600/30 text-cyan-300"
+                  : "text-purple-200/70 hover:text-white"
+              )}
+            >
+              <UserAvatar
+                username={user.username}
+                avatarUrl={user.avatarUrl}
+                size="sm"
+              />
+              Mon profil
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                logout();
+              }}
+              className="btn-secondary mt-1 w-full py-2 text-sm"
+            >
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import clsx from "clsx";
 import type { ReactNode } from "react";
 import "./karma-gauge.css";
 
@@ -9,6 +10,8 @@ interface KarmaGaugeProps {
   max: number;
   dailyDecay: number;
   username?: string;
+  variant?: "full" | "horizontal";
+  bare?: boolean;
 }
 
 const SEGMENTS = 28;
@@ -282,7 +285,130 @@ function MysticRings({ cx, cy, r }: { cx: number; cy: number; r: number }) {
   );
 }
 
-export function KarmaGauge({ score, max, dailyDecay, username }: KarmaGaugeProps) {
+function GaugeDefs({ idPrefix = "" }: { idPrefix?: string }) {
+  const p = idPrefix;
+  return (
+    <defs>
+      <filter id={`${p}yinNeonGlow`} x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id={`${p}dotNeonGlow`} x="-100%" y="-100%" width="300%" height="300%">
+        <feGaussianBlur stdDeviation="2.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <linearGradient id={`${p}yinyangRing`} x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor={CYAN_NEON} />
+        <stop offset="45%" stopColor={CYAN} />
+        <stop offset="55%" stopColor={PURPLE} />
+        <stop offset="100%" stopColor={PURPLE_NEON} />
+      </linearGradient>
+      <linearGradient id={`${p}hudRing`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor={CYAN} stopOpacity={0.6} />
+        <stop offset="50%" stopColor="#64748b" stopOpacity={0.3} />
+        <stop offset="100%" stopColor={PURPLE} stopOpacity={0.6} />
+      </linearGradient>
+    </defs>
+  );
+}
+
+function HorizontalSegments({ filled }: { filled: number }) {
+  return (
+    <div className="flex w-full gap-[3px]" role="img" aria-hidden>
+      {Array.from({ length: SEGMENTS }, (_, i) => {
+        const lit = i < filled;
+        const color = segmentColor(i, SEGMENTS, lit);
+        return (
+          <div
+            key={i}
+            className={clsx(
+              "karma-bar-segment h-3 min-w-0 flex-1 rounded-sm",
+              lit && "karma-segment-lit"
+            )}
+            style={{
+              backgroundColor: color,
+              opacity: lit ? 1 : 0.35,
+              boxShadow: lit ? `0 0 6px ${color}88, 0 0 2px ${color}` : undefined,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function KarmaGaugeHorizontal({
+  score,
+  max,
+  dailyDecay,
+  bare = false,
+}: {
+  score: number;
+  max: number;
+  dailyDecay: number;
+  bare?: boolean;
+}) {
+  const percent = Math.round((score / max) * 100);
+  const mood = getMood(percent);
+  const filledSegments = Math.round((score / max) * SEGMENTS);
+
+  return (
+    <div
+      className={clsx(
+        "relative w-full overflow-hidden",
+        bare ? "card-gaming px-3 py-2" : "card-gaming px-4 py-3"
+      )}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-purple-600/5" />
+
+      <div className="relative flex items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <HorizontalSegments filled={filledSegments} />
+        </div>
+        <div className="karma-score-text shrink-0 text-right leading-none">
+          <p className="font-game text-2xl font-black text-white">{score}</p>
+          <p className="mt-0.5 font-game text-xs text-purple-300/60">/ {max} KP</p>
+        </div>
+      </div>
+
+      <p
+        className="relative mt-2 text-center font-game text-sm font-bold tracking-wide"
+        style={{ color: mood.color }}
+      >
+        {mood.label}
+      </p>
+      <p className="relative mt-0.5 text-center text-[11px] text-purple-300/45">
+        −{dailyDecay} karma / jour d&apos;inactivité
+      </p>
+    </div>
+  );
+}
+
+export function KarmaGauge({
+  score,
+  max,
+  dailyDecay,
+  username,
+  variant = "full",
+  bare = false,
+}: KarmaGaugeProps) {
+  if (variant === "horizontal") {
+    return (
+      <KarmaGaugeHorizontal
+        score={score}
+        max={max}
+        dailyDecay={dailyDecay}
+        bare={bare}
+      />
+    );
+  }
+
   const percent = Math.round((score / max) * 100);
   const mood = getMood(percent);
   const filledSegments = Math.round((score / max) * SEGMENTS);
@@ -307,33 +433,7 @@ export function KarmaGauge({ score, max, dailyDecay, username }: KarmaGaugeProps
           aria-label={`Karma ${score} sur ${max}`}
           preserveAspectRatio="xMidYMid meet"
         >
-          <defs>
-            <filter id="yinNeonGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <filter id="dotNeonGlow" x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <linearGradient id="yinyangRing" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={CYAN_NEON} />
-              <stop offset="45%" stopColor={CYAN} />
-              <stop offset="55%" stopColor={PURPLE} />
-              <stop offset="100%" stopColor={PURPLE_NEON} />
-            </linearGradient>
-            <linearGradient id="hudRing" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={CYAN} stopOpacity={0.6} />
-              <stop offset="50%" stopColor="#64748b" stopOpacity={0.3} />
-              <stop offset="100%" stopColor={PURPLE} stopOpacity={0.6} />
-            </linearGradient>
-          </defs>
+          <GaugeDefs />
 
           <MysticRings cx={CX} cy={CY} r={SEG_RADIUS} />
           <HudDecorations cx={CX} cy={CY} r={SEG_RADIUS} />

@@ -101,7 +101,20 @@ h1, h2, h3, .font-game {
     scrollbar-width: thin;
     scrollbar-color: rgba(168, 85, 247, 0.45) transparent;
     overflow-x: hidden;
+    scroll-padding-top: 0.5rem;
     padding-block: 2px;
+  }
+
+  .dashboard-gauge-slot {
+    overflow-anchor: none;
+  }
+
+  .actions-list-default {
+    max-height: calc(5 * 4.75rem + 4 * 0.5rem);
+  }
+
+  .karma-bar-segment {
+    transition: opacity 0.2s ease;
   }
 
   .actions-scroll::-webkit-scrollbar {
