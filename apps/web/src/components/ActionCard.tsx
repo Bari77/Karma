@@ -21,6 +21,48 @@ interface ActionCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
+function ActionStar({
+  isFavorite,
+  isGood,
+  onToggle,
+}: {
+  isFavorite: boolean;
+  isGood: boolean;
+  onToggle: (e: React.MouseEvent) => void;
+}) {
+  const colorClass = isGood ? "text-theme-good" : "text-theme-bad";
+  const glowClass = isGood
+    ? "drop-shadow-[0_0_8px_color-mix(in_srgb,var(--theme-good)_65%,transparent)]"
+    : "drop-shadow-[0_0_8px_color-mix(in_srgb,var(--theme-bad)_65%,transparent)]";
+
+  return (
+    <button
+      type="button"
+      aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+      aria-pressed={isFavorite}
+      onClick={onToggle}
+      className={clsx(
+        "shrink-0 rounded-md p-0.5 transition hover:scale-110 focus:outline-none focus-visible:ring-2",
+        colorClass,
+        isGood ? "focus-visible:ring-theme-good/40" : "focus-visible:ring-theme-bad/40",
+        isFavorite && glowClass
+      )}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        className="h-6 w-6"
+        aria-hidden
+        fill={isFavorite ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth={isFavorite ? 0 : 2}
+        strokeLinejoin="round"
+      >
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    </button>
+  );
+}
+
 export function ActionCard({
   id,
   label,
@@ -77,35 +119,23 @@ export function ActionCard({
           onCooldown && "cursor-not-allowed opacity-50",
           loading && "cursor-wait",
           !isDisabled && "cursor-pointer hover:shadow-md hover:shadow-[color:var(--theme-shadow-to)]",
-          !isDisabled && isGood && "hover:border-[color:var(--theme-border-strong)]",
-          !isDisabled && !isGood && "hover:border-[color:var(--theme-border-strong)]",
+          !isDisabled && "hover:border-[color:var(--theme-border-strong)]"
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3 pr-2">
-          <span className="shrink-0 text-2xl">{isGood ? "✅" : "❌"}</span>
-          <div className="relative min-w-0 flex-1">
-            <div className="relative inline-block max-w-full pr-7">
-              {onToggleFavorite && (
-                <button
-                  type="button"
-                  aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleFavorite(id);
-                  }}
-                  className={clsx(
-                    "absolute right-0 top-1/2 z-0 -translate-y-1/2 text-lg leading-none transition-all",
-                    isFavorite
-                      ? "opacity-100 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.85)]"
-                      : "opacity-0 text-amber-400/90 group-hover:opacity-100"
-                  )}
-                >
-                  ★
-                </button>
-              )}
-              <span className="relative z-10 font-semibold text-white">{label}</span>
-            </div>
-          </div>
+          {onToggleFavorite ? (
+            <ActionStar
+              isFavorite={isFavorite}
+              isGood={isGood}
+              onToggle={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(id);
+              }}
+            />
+          ) : (
+            <span className="shrink-0 text-2xl">{isGood ? "✅" : "❌"}</span>
+          )}
+          <span className="min-w-0 font-semibold text-white">{label}</span>
         </div>
         {loading ? (
           <span

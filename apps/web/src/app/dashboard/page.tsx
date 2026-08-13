@@ -79,7 +79,9 @@ function ActionsColumn({
   stickyTopPx,
   compactScroll,
   hideTitle,
+  hideSearch,
   embeddedInPanel,
+  scrollMaxHeight,
 }: {
   title: string;
   subtitle: string;
@@ -96,7 +98,9 @@ function ActionsColumn({
   stickyTopPx?: number;
   compactScroll?: boolean;
   hideTitle?: boolean;
+  hideSearch?: boolean;
   embeddedInPanel?: boolean;
+  scrollMaxHeight?: string;
 }) {
   const titleClass = accent === "good" ? "text-theme-good" : "text-theme-bad";
   const filtered = filterActions(
@@ -115,28 +119,34 @@ function ActionsColumn({
           "sticky z-30 overflow-hidden border-b border-theme bg-karma-bg shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
       )}
       style={
-        !embeddedInPanel && headerSticky && stickyTopPx !== undefined && compactScroll
-          ? {
-              top: stickyTopPx,
-              maxHeight: `calc(100dvh - ${stickyTopPx + 24}px)`,
-            }
-          : undefined
+        scrollMaxHeight
+          ? { maxHeight: scrollMaxHeight }
+          : !embeddedInPanel && headerSticky && stickyTopPx !== undefined && compactScroll
+            ? {
+                top: stickyTopPx,
+                maxHeight: `calc(100dvh - ${stickyTopPx + 24}px)`,
+              }
+            : undefined
       }
     >
-      <div className={clsx("shrink-0 pb-3", embeddedInPanel ? "pt-0" : "pt-1")}>
-        {!hideTitle && (
-          <>
-            <h2 className={`font-game mb-1 text-lg md:text-xl ${titleClass}`}>{title}</h2>
-            <p className="mb-3 text-xs text-theme-muted">{subtitle}</p>
-          </>
-        )}
-        <ActionSearchInput
-          value={search}
-          onChange={onSearchChange}
-          placeholder={searchPlaceholder}
-          accent={accent}
-        />
-      </div>
+      {!hideTitle || !hideSearch ? (
+        <div className={clsx("shrink-0 pb-3", embeddedInPanel ? "pt-0" : "pt-1")}>
+          {!hideTitle && (
+            <>
+              <h2 className={`font-game mb-1 text-lg md:text-xl ${titleClass}`}>{title}</h2>
+              <p className="mb-3 text-xs text-theme-muted">{subtitle}</p>
+            </>
+          )}
+          {!hideSearch && (
+            <ActionSearchInput
+              value={search}
+              onChange={onSearchChange}
+              placeholder={searchPlaceholder}
+              accent={accent}
+            />
+          )}
+        </div>
+      ) : null}
       <div
         className={clsx(
           "actions-scroll relative z-0 min-h-0 flex-1 overflow-y-auto pr-1",
@@ -164,53 +174,66 @@ function ActionsColumn({
   );
 }
 
-function MobileActionTabs({
+function MobileActionsPanel({
   active,
   onChange,
-  sticky,
+  search,
+  onSearchChange,
   stickyTopPx,
   embedded,
 }: {
   active: "good" | "bad";
   onChange: (tab: "good" | "bad") => void;
-  sticky?: boolean;
+  search: string;
+  onSearchChange: (value: string) => void;
   stickyTopPx?: number;
   embedded?: boolean;
 }) {
   return (
     <div
       className={clsx(
-        "flex shrink-0 gap-2 lg:hidden",
-        embedded ? "mb-2" : "mb-3",
-        sticky &&
-          "sticky z-[35] -mx-4 border-b border-theme bg-karma-bg px-4 py-2 shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
+        "flex flex-col gap-2 lg:hidden",
+        !embedded &&
+          "sticky z-[42] -mx-4 bg-karma-bg px-4 py-2 shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
       )}
-      style={sticky && stickyTopPx !== undefined ? { top: stickyTopPx } : undefined}
+      style={!embedded && stickyTopPx !== undefined ? { top: stickyTopPx } : undefined}
     >
-      <button
-        type="button"
-        onClick={() => onChange("good")}
-        className={clsx(
-          "flex-1 rounded-xl border px-3 py-2.5 font-game text-sm font-semibold transition",
-          active === "good"
-            ? "border-[color:var(--theme-good)]/40 bg-[color:var(--theme-good)]/15 text-theme-good"
-            : "border-theme bg-karma-card/40 text-theme-muted-soft hover:text-white"
-        )}
-      >
-        ✨ Bonnes actions
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange("bad")}
-        className={clsx(
-          "flex-1 rounded-xl border px-3 py-2.5 font-game text-sm font-semibold transition",
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => onChange("bad")}
+          className={clsx(
+            "flex-1 rounded-xl border px-3 py-2.5 font-game text-sm font-semibold transition",
+            active === "bad"
+              ? "border-[color:var(--theme-bad)]/40 bg-[color:var(--theme-bad)]/15 text-theme-bad"
+              : "border-theme bg-karma-card/40 text-theme-muted-soft hover:text-white"
+          )}
+        >
+          💀 Mauvaises
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("good")}
+          className={clsx(
+            "flex-1 rounded-xl border px-3 py-2.5 font-game text-sm font-semibold transition",
+            active === "good"
+              ? "border-[color:var(--theme-good)]/40 bg-[color:var(--theme-good)]/15 text-theme-good"
+              : "border-theme bg-karma-card/40 text-theme-muted-soft hover:text-white"
+          )}
+        >
+          ✨ Bonnes actions
+        </button>
+      </div>
+      <ActionSearchInput
+        value={search}
+        onChange={onSearchChange}
+        placeholder={
           active === "bad"
-            ? "border-[color:var(--theme-bad)]/40 bg-[color:var(--theme-bad)]/15 text-theme-bad"
-            : "border-theme bg-karma-card/40 text-theme-muted-soft hover:text-white"
-        )}
-      >
-        💀 Mauvaises
-      </button>
+            ? "Rechercher une mauvaise action…"
+            : "Rechercher une bonne action…"
+        }
+        accent={active}
+      />
     </div>
   );
 }
@@ -234,25 +257,30 @@ export default function DashboardPage() {
   const [gaugeSticky, setGaugeSticky] = useState(false);
   const gaugeStickyRef = useRef(false);
   const gaugeMeasureRef = useRef<HTMLDivElement>(null);
-  const compactBarMeasureRef = useRef<HTMLDivElement>(null);
   const [gaugeFullHeight, setGaugeFullHeight] = useState(0);
-  const [compactBarHeight, setCompactBarHeight] = useState(88);
 
   const NAVBAR_OFFSET_PX = 68;
+  const COMPACT_BAR_HEIGHT_PX = 130;
+  const MOBILE_TABS_HEIGHT_PX = 48;
+  const MOBILE_SEARCH_HEIGHT_PX = 44;
+  const MOBILE_ACTIONS_PANEL_PX = MOBILE_TABS_HEIGHT_PX + 8 + MOBILE_SEARCH_HEIGHT_PX + 16;
   const STICKY_STACK_TOP_PX = 5;
   const STICKY_ON_PX = 64;
   const STICKY_OFF_PX = 8;
 
-  const compactStackTopPx = NAVBAR_OFFSET_PX + compactBarHeight;
-  const stickyBelowGaugePx = compactStackTopPx + STICKY_STACK_TOP_PX;
-  const mobileTabsStickyTopPx = stickyBelowGaugePx;
-  const columnHeaderStickyTopPx = stickyBelowGaugePx;
-  const mobileCompactPanel = isMobile && gaugeSticky;
+  const mobileFixedHeaderHeightPx = COMPACT_BAR_HEIGHT_PX + MOBILE_ACTIONS_PANEL_PX;
+  const compactStackTopPx = NAVBAR_OFFSET_PX + COMPACT_BAR_HEIGHT_PX;
+  const stickyChromeHeight = isMobile ? mobileFixedHeaderHeightPx : COMPACT_BAR_HEIGHT_PX;
+  const mobileScrollMaxHeight =
+    gaugeSticky && isMobile
+      ? `calc(100dvh - ${NAVBAR_OFFSET_PX + mobileFixedHeaderHeightPx + 24}px)`
+      : undefined;
+  const columnHeaderStickyTopPx = compactStackTopPx + STICKY_STACK_TOP_PX;
 
   const activeSlotHeight = gaugeFullHeight > 0 ? gaugeFullHeight : undefined;
   const actionsPullUpPx =
     gaugeSticky && gaugeFullHeight > 0
-      ? Math.max(0, gaugeFullHeight - compactBarHeight)
+      ? Math.max(0, gaugeFullHeight - stickyChromeHeight)
       : 0;
 
   useEffect(() => {
@@ -276,18 +304,6 @@ export default function DashboardPage() {
 
     const ro = new ResizeObserver(measure);
     ro.observe(fullEl);
-    return () => ro.disconnect();
-  }, [stats, initialLoading]);
-
-  useLayoutEffect(() => {
-    const compactEl = compactBarMeasureRef.current;
-    if (!compactEl) return;
-
-    const measure = () => setCompactBarHeight(compactEl.offsetHeight);
-    measure();
-
-    const ro = new ResizeObserver(measure);
-    ro.observe(compactEl);
     return () => ro.disconnect();
   }, [stats, initialLoading]);
 
@@ -431,24 +447,6 @@ export default function DashboardPage() {
           )}
         </AnimatePresence>
 
-        {stats && !initialLoading && (
-          <div
-            ref={compactBarMeasureRef}
-            className="pointer-events-none absolute left-0 top-0 -z-10 w-full opacity-0"
-            aria-hidden
-          >
-            <div className="mx-auto max-w-6xl px-4 py-2">
-              <KarmaGauge
-                score={stats.karmaScore}
-                max={stats.maxKarma}
-                dailyDecay={stats.dailyDecay}
-                variant="horizontal"
-                bare
-              />
-            </div>
-          </div>
-        )}
-
         {gaugeSticky && stats && !initialLoading && (
           <div
             className="fixed inset-x-0 z-40"
@@ -463,6 +461,17 @@ export default function DashboardPage() {
                 bare
               />
             </div>
+            {isMobile && (
+              <div className="mx-auto max-w-6xl px-4 pb-2">
+                <MobileActionsPanel
+                  active={mobileActionTab}
+                  onChange={setMobileActionTab}
+                  search={mobileActionTab === "bad" ? badSearch : goodSearch}
+                  onSearchChange={mobileActionTab === "bad" ? setBadSearch : setGoodSearch}
+                  embedded
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -491,6 +500,16 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {isMobile && !gaugeSticky && (
+          <MobileActionsPanel
+            active={mobileActionTab}
+            onChange={setMobileActionTab}
+            search={mobileActionTab === "bad" ? badSearch : goodSearch}
+            onSearchChange={mobileActionTab === "bad" ? setBadSearch : setGoodSearch}
+            stickyTopPx={NAVBAR_OFFSET_PX}
+          />
+        )}
+
         <div
           className={clsx(
             "grid grid-cols-1 transition-[margin] duration-300 ease-out lg:grid-cols-2 lg:gap-8 lg:items-start",
@@ -501,115 +520,50 @@ export default function DashboardPage() {
             actionsPullUpPx > 0 ? { marginTop: -actionsPullUpPx } : undefined
           }
         >
-          {mobileCompactPanel ? (
-            <div
-              className="sticky z-30 flex min-h-0 flex-col overflow-hidden border-b border-theme bg-karma-bg shadow-[0_8px_16px_-8px_rgba(15,10,30,0.9)] backdrop-blur-md"
-              style={{
-                top: mobileTabsStickyTopPx,
-                maxHeight: `calc(100dvh - ${mobileTabsStickyTopPx + 24}px)`,
-              }}
-            >
-              <MobileActionTabs
-                active={mobileActionTab}
-                onChange={setMobileActionTab}
-                embedded
-              />
-              <div
-                className={clsx(
-                  "flex min-h-0 flex-1 flex-col",
-                  mobileActionTab !== "good" && "hidden"
-                )}
-              >
-                <ActionsColumn
-                  title="✨ Bonnes actions"
-                  subtitle="Cooldown configurable par action (min. 1 jour)"
-                  accent="good"
-                  search={goodSearch}
-                  onSearchChange={setGoodSearch}
-                  searchPlaceholder="Rechercher une bonne action…"
-                  loading={initialLoading}
-                  actions={goodActions}
-                  favorites={favorites}
-                  emptyMessage="Aucune bonne action disponible"
-                  renderAction={renderAction}
-                  compactScroll
-                  hideTitle
-                  embeddedInPanel
-                />
-              </div>
-              <div
-                className={clsx(
-                  "flex min-h-0 flex-1 flex-col",
-                  mobileActionTab !== "bad" && "hidden"
-                )}
-              >
-                <ActionsColumn
-                  title="💀 Mauvaises actions"
-                  subtitle="Illimitées par défaut — cooldown configurable"
-                  accent="bad"
-                  search={badSearch}
-                  onSearchChange={setBadSearch}
-                  searchPlaceholder="Rechercher une mauvaise action…"
-                  loading={initialLoading}
-                  actions={badActions}
-                  favorites={favorites}
-                  emptyMessage="Aucune mauvaise action disponible"
-                  renderAction={renderAction}
-                  compactScroll
-                  hideTitle
-                  embeddedInPanel
-                />
-              </div>
-            </div>
-          ) : (
-            <>
-              <MobileActionTabs
-                active={mobileActionTab}
-                onChange={setMobileActionTab}
-                sticky={gaugeSticky && isMobile}
-                stickyTopPx={mobileTabsStickyTopPx}
-              />
-
-              <div className={clsx(isMobile && mobileActionTab !== "bad" && "hidden lg:block")}>
-                <ActionsColumn
-                  title="💀 Mauvaises actions"
-                  subtitle="Illimitées par défaut — cooldown configurable"
-                  accent="bad"
-                  search={badSearch}
-                  onSearchChange={setBadSearch}
-                  searchPlaceholder="Rechercher une mauvaise action…"
-                  loading={initialLoading}
-                  actions={badActions}
-                  favorites={favorites}
-                  emptyMessage="Aucune mauvaise action disponible"
-                  renderAction={renderAction}
-                  headerSticky={gaugeSticky}
-                  stickyTopPx={columnHeaderStickyTopPx}
-                  compactScroll={gaugeSticky}
-                  hideTitle={isMobile}
-                />
-              </div>
-              <div className={clsx(isMobile && mobileActionTab !== "good" && "hidden lg:block")}>
-                <ActionsColumn
-                  title="✨ Bonnes actions"
-                  subtitle="Cooldown configurable par action (min. 1 jour)"
-                  accent="good"
-                  search={goodSearch}
-                  onSearchChange={setGoodSearch}
-                  searchPlaceholder="Rechercher une bonne action…"
-                  loading={initialLoading}
-                  actions={goodActions}
-                  favorites={favorites}
-                  emptyMessage="Aucune bonne action disponible"
-                  renderAction={renderAction}
-                  headerSticky={gaugeSticky}
-                  stickyTopPx={columnHeaderStickyTopPx}
-                  compactScroll={gaugeSticky}
-                  hideTitle={isMobile}
-                />
-              </div>
-            </>
-          )}
+          <div className={clsx(isMobile && mobileActionTab !== "bad" && "hidden lg:block")}>
+            <ActionsColumn
+              title="💀 Mauvaises actions"
+              subtitle="Illimitées par défaut — cooldown configurable"
+              accent="bad"
+              search={badSearch}
+              onSearchChange={setBadSearch}
+              searchPlaceholder="Rechercher une mauvaise action…"
+              loading={initialLoading}
+              actions={badActions}
+              favorites={favorites}
+              emptyMessage="Aucune mauvaise action disponible"
+              renderAction={renderAction}
+              headerSticky={!isMobile && gaugeSticky}
+              stickyTopPx={columnHeaderStickyTopPx}
+              compactScroll={gaugeSticky}
+              hideTitle={isMobile}
+              hideSearch={isMobile}
+              embeddedInPanel={isMobile && gaugeSticky}
+              scrollMaxHeight={isMobile ? mobileScrollMaxHeight : undefined}
+            />
+          </div>
+          <div className={clsx(isMobile && mobileActionTab !== "good" && "hidden lg:block")}>
+            <ActionsColumn
+              title="✨ Bonnes actions"
+              subtitle="Cooldown configurable par action (min. 1 jour)"
+              accent="good"
+              search={goodSearch}
+              onSearchChange={setGoodSearch}
+              searchPlaceholder="Rechercher une bonne action…"
+              loading={initialLoading}
+              actions={goodActions}
+              favorites={favorites}
+              emptyMessage="Aucune bonne action disponible"
+              renderAction={renderAction}
+              headerSticky={!isMobile && gaugeSticky}
+              stickyTopPx={columnHeaderStickyTopPx}
+              compactScroll={gaugeSticky}
+              hideTitle={isMobile}
+              hideSearch={isMobile}
+              embeddedInPanel={isMobile && gaugeSticky}
+              scrollMaxHeight={isMobile ? mobileScrollMaxHeight : undefined}
+            />
+          </div>
         </div>
       </main>
     </AuthGuard>

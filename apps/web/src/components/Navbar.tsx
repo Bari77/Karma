@@ -21,12 +21,15 @@ function navLinkClass(active: boolean) {
   );
 }
 
-function NavBadge({ count }: { count: number }) {
+function NavBadge({ count, inline }: { count: number; inline?: boolean }) {
   if (count <= 0) return null;
   return (
     <span
       aria-label={`${count} validation${count > 1 ? "s" : ""} en attente`}
-      className="absolute -right-2 -top-1.5 z-10 flex h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-karma-bg bg-red-500 px-1 text-[11px] font-bold leading-none text-white shadow-[0_0_10px_rgba(239,68,68,0.9),0_2px_4px_rgba(0,0,0,0.45)]"
+      className={clsx(
+        "flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full border-2 border-karma-bg bg-red-500 px-1 text-[11px] font-bold leading-none text-white shadow-[0_0_10px_rgba(239,68,68,0.9),0_2px_4px_rgba(0,0,0,0.45)]",
+        inline ? "relative" : "absolute -right-2 -top-1.5 z-10"
+      )}
     >
       {count > 99 ? "99+" : count}
     </span>
@@ -39,21 +42,29 @@ function NavLink({
   active,
   badge,
   onClick,
+  inlineBadge,
 }: {
   href: string;
   label: string;
   active: boolean;
   badge?: number;
   onClick?: () => void;
+  inlineBadge?: boolean;
 }) {
+  const showBadge = badge != null && badge > 0;
+
   return (
     <Link
       href={href}
       onClick={onClick}
-      className={clsx(navLinkClass(active), badge ? "relative mr-2 pr-1" : undefined)}
+      className={clsx(
+        navLinkClass(active),
+        showBadge && !inlineBadge && "relative mr-2 pr-1",
+        inlineBadge && showBadge && "inline-flex items-center gap-2"
+      )}
     >
-      {label}
-      {badge != null && <NavBadge count={badge} />}
+      <span>{label}</span>
+      {showBadge && <NavBadge count={badge} inline={inlineBadge} />}
     </Link>
   );
 }
@@ -244,6 +255,7 @@ export function Navbar() {
                   active={active}
                   badge={l.badge}
                   onClick={() => setMenuOpen(false)}
+                  inlineBadge
                 />
               );
             })}
