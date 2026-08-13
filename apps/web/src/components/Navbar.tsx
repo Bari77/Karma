@@ -95,20 +95,20 @@ export function Navbar() {
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
   const links: { href: string; label: string; badge?: number }[] = [
+    { href: "/history", label: "Historique" },
     { href: "/groups", label: "Groupes" },
     { href: "/propose", label: "Proposer" },
-    { href: "/history", label: "Historique" },
   ];
 
-  if (user && STAFF.includes(user.role)) {
-    links.push({ href: "/admin/actions", label: "Actions" });
-  }
   if (user && ADMIN.includes(user.role)) {
     links.push({
       href: "/admin/validate",
       label: "Validation",
       badge: pendingCount,
     });
+  }
+  if (user && STAFF.includes(user.role)) {
+    links.push({ href: "/admin/actions", label: "Actions" });
   }
   if (user?.role === Role.SUPER_ADMIN) {
     links.push({ href: "/admin/users", label: "Utilisateurs" });

@@ -1,17 +1,17 @@
-import "dotenv/config";
-import path from "path";
-import Fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
-import authPlugin from "./plugins/auth";
+import "dotenv/config";
+import Fastify from "fastify";
+import path from "path";
 import { ensureAvatarDir } from "./lib/avatar";
-import { authRoutes } from "./routes/auth.routes";
-import { karmaRoutes } from "./routes/karma.routes";
-import { actionRoutes } from "./routes/action.routes";
-import { userRoutes } from "./routes/user.routes";
-import { groupRoutes } from "./routes/group.routes";
 import { disconnectDb } from "./lib/prisma";
+import authPlugin from "./plugins/auth";
+import { actionRoutes } from "./routes/action.routes";
+import { authRoutes } from "./routes/auth.routes";
+import { groupRoutes } from "./routes/group.routes";
+import { karmaRoutes } from "./routes/karma.routes";
+import { userRoutes } from "./routes/user.routes";
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
 

@@ -5,7 +5,7 @@ import { ConfirmProvider } from "@/lib/confirm-context";
 import { ThemeProvider } from "@/lib/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Karma Quest — Gère ton aura",
+  title: "Karma Quest — Améliore ton avenir",
   description: "Un jeu de karma quotidien. Coche tes actions, monte ta jauge, deviens une légende.",
 };
 

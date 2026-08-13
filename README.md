@@ -246,16 +246,22 @@ Le tag Git (`x.y.z`) est utilisé comme version d'image. Le tag doit pointer ver
 
 ### Déployer sur le serveur
 
-Fichier `docker-compose.prod.yml` + `.env.prod` :
+Sur le serveur, copier `docker-compose.prod.yml` → `docker-compose.yml` et ajouter un **`.env`** dans le même dossier.
+
+Docker Compose charge **automatiquement** `.env`. Ne commitez jamais ce fichier.
 
 ```bash
-docker compose -f docker-compose.prod.yml --env-file .env.prod pull
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
-docker compose -f docker-compose.prod.yml --env-file .env.prod exec api npm run db:seed:actions
-docker compose -f docker-compose.prod.yml --env-file .env.prod exec api npm run db:promote-super-admin -- vous@example.com
+cp docker-compose.prod.yml docker-compose.yml   # une fois, sur le serveur
+cp .env.example .env
+# éditer .env avec vos secrets et domaines
+
+docker compose pull
+docker compose up -d
+docker compose exec api npm run db:seed:actions
+docker compose exec api npm run db:promote-super-admin -- vous@example.com
 ```
 
-Exemple `.env.prod` (bariserv.net) :
+Exemple `.env` (bariserv.net) :
 
 ```env
 REGISTRY=registry.bariserv.net
@@ -289,8 +295,8 @@ Prérequis serveur : réseau Docker `traefik_proxy` existant, middlewares Traefi
 ```bash
 sudo mkdir -p /opt/karma/uploads
 docker login registry.bariserv.net
-docker compose -f docker-compose.prod.yml --env-file .env.prod pull
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+docker compose pull
+docker compose up -d
 ```
 
 ### Web (`apps/web/.env.local`)
