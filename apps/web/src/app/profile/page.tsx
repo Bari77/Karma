@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Navbar } from "@/components/Navbar";
+import { KarmaGauge } from "@/components/KarmaGauge";
+import { KarmaGaugeSkeleton } from "@/components/Skeleton";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
-import { ThemeId } from "@karma/shared";
+import { ThemeId, KarmaStats } from "@karma/shared";
 import { ThemePicker } from "@/components/ThemePicker";
 import { useTheme } from "@/lib/theme-provider";
 
@@ -15,6 +17,9 @@ export default function ProfilePage() {
   const { user, setUser } = useAuth();
   const { setThemeId } = useTheme();
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const [stats, setStats] = useState<KarmaStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -39,6 +44,22 @@ export default function ProfilePage() {
       setThemeIdLocal(user.themeId);
     }
   }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStatsLoading(true);
+    api
+      .karmaStats()
+      .then((s) => {
+        if (!cancelled) setStats(s);
+      })
+      .finally(() => {
+        if (!cancelled) setStatsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const handleThemeSave = async () => {
     if (!user) return;
@@ -144,6 +165,24 @@ export default function ProfilePage() {
 
         {user && (
           <div className="space-y-6">
+            {statsLoading ? (
+              <div className="mb-6">
+                <KarmaGaugeSkeleton />
+              </div>
+            ) : stats ? (
+              <div className="mb-6">
+                <KarmaGauge
+                  score={stats.karmaScore}
+                  max={stats.maxKarma}
+                  dailyDecay={stats.dailyDecay}
+                  username={user.username}
+                  questLevel={stats.questLevel}
+                  questTitle={stats.questTitle}
+                  variant="full"
+                />
+              </div>
+            ) : null}
+
             <section className="card-gaming p-6">
               <h2 className="mb-2 font-semibold text-theme-from">Apparence</h2>
               <p className="mb-4 text-sm text-theme-muted">
@@ -217,32 +256,22 @@ export default function ProfilePage() {
               className="card-gaming space-y-4 p-6"
             >
               <h2 className="font-semibold text-theme-from">Informations</h2>
-              <div>
-                <label htmlFor="profile-username" className="mb-1 block text-sm text-theme-muted-soft">
-                  Pseudo
-                </label>
-                <input
-                  id="profile-username"
-                  className="input-gaming"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  minLength={3}
-                />
-              </div>
-              <div>
-                <label htmlFor="profile-email" className="mb-1 block text-sm text-theme-muted-soft">
-                  Email
-                </label>
-                <input
-                  id="profile-email"
-                  type="email"
-                  className="input-gaming"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+              <input
+                className="input-gaming"
+                placeholder="Pseudo"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                minLength={3}
+              />
+              <input
+                type="email"
+                className="input-gaming"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
               {profileMsg && (
                 <p className="text-center text-sm text-theme-muted">{profileMsg}</p>
               )}
@@ -253,47 +282,32 @@ export default function ProfilePage() {
 
             <form onSubmit={handlePasswordSave} className="card-gaming space-y-4 p-6">
               <h2 className="font-semibold text-theme-from">Mot de passe</h2>
-              <div>
-                <label htmlFor="current-password" className="mb-1 block text-sm text-theme-muted-soft">
-                  Mot de passe actuel
-                </label>
-                <input
-                  id="current-password"
-                  type="password"
-                  className="input-gaming"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="new-password" className="mb-1 block text-sm text-theme-muted-soft">
-                  Nouveau mot de passe
-                </label>
-                <input
-                  id="new-password"
-                  type="password"
-                  className="input-gaming"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div>
-                <label htmlFor="confirm-password" className="mb-1 block text-sm text-theme-muted-soft">
-                  Confirmer le mot de passe
-                </label>
-                <input
-                  id="confirm-password"
-                  type="password"
-                  className="input-gaming"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
+              <input
+                type="password"
+                className="input-gaming"
+                placeholder="Mot de passe actuel"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                className="input-gaming"
+                placeholder="Nouveau mot de passe"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+              <input
+                type="password"
+                className="input-gaming"
+                placeholder="Confirmer le mot de passe"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+              />
               {passwordMsg && (
                 <p className="text-center text-sm text-theme-muted">{passwordMsg}</p>
               )}

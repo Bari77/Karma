@@ -1,15 +1,18 @@
 import { z } from "zod";
 import { ActionType, Role } from "./types";
 import { THEME_IDS } from "./themes";
+import { normalizeEmail } from "./email";
+
+const emailSchema = z.string().email().transform(normalizeEmail);
 
 export const registerSchema = z.object({
-  email: z.string().email(),
+  email: emailSchema,
   username: z.string().min(3).max(30),
   password: z.string().min(6),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: emailSchema,
   password: z.string().min(1),
 });
 
@@ -42,7 +45,7 @@ export const themeIdSchema = z.enum(THEME_IDS);
 
 export const updateProfileSchema = z.object({
   username: z.string().min(3).max(30).optional(),
-  email: z.string().email().optional(),
+  email: emailSchema.optional(),
   themeId: themeIdSchema.optional(),
 });
 

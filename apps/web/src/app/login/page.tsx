@@ -67,7 +67,7 @@ export default function LoginPage() {
         </div>
         <p className="mt-4 text-center text-sm text-theme-muted">
           Pas de compte ?{" "}
-          <Link href="/register" className="text-theme-from hover:underline">
+          <Link href="/register" className="link-theme">
             S&apos;inscrire
           </Link>
         </p>

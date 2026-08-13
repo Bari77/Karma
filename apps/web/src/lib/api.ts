@@ -124,10 +124,14 @@ export const api = {
     }),
 
   performAction: (actionId: string) =>
-    request<{ pointsChange: number; karmaScore: number }>(
-      `/actions/${actionId}/perform`,
-      { method: "POST" }
-    ),
+    request<{
+      pointsChange: number;
+      karmaScore: number;
+      questUpdate?: import("@karma/shared").QuestProgressUpdate | null;
+    }>(`/actions/${actionId}/perform`, { method: "POST" }),
+
+  questProgression: () =>
+    request<import("@karma/shared").QuestProgression>("/quests/progression"),
 
   proposeAction: (body: { label: string; points: number; type: string }) =>
     request("/actions/propose", { method: "POST", body: JSON.stringify(body) }),

@@ -13,12 +13,7 @@ const STAFF = [Role.MODERATOR, Role.ADMIN, Role.SUPER_ADMIN];
 const ADMIN = [Role.ADMIN, Role.SUPER_ADMIN];
 
 function navLinkClass(active: boolean) {
-  return clsx(
-    "rounded-lg px-3 py-2 text-sm font-semibold transition",
-    active
-      ? "bg-theme-nav-active text-theme-from"
-      : "text-theme-muted-soft hover:text-white"
-  );
+  return clsx("nav-link", active && "nav-link-active");
 }
 
 function NavBadge({ count, inline }: { count: number; inline?: boolean }) {
@@ -145,7 +140,14 @@ export function Navbar() {
       className={clsx(navLinkClass(dashboardActive), "inline-flex items-center gap-2")}
     >
       <span>Jeu</span>
-      <span className="font-game text-xs font-bold text-theme-from">{user.karmaScore} KP</span>
+      <span
+        className={clsx(
+          "font-game text-xs font-bold",
+          dashboardActive ? "text-white/85" : "text-theme-muted"
+        )}
+      >
+        {user.karmaScore} KP
+      </span>
     </Link>
   ) : null;
 
@@ -182,10 +184,8 @@ export function Navbar() {
               <Link
                 href="/profile"
                 className={clsx(
-                  "hidden items-center gap-2 rounded-lg px-2 py-1 transition sm:flex",
-                  pathname === "/profile"
-                    ? "bg-theme-nav-active text-theme-from"
-                    : "text-theme-muted hover:bg-theme-nav-active hover:text-white"
+                  "nav-link hidden items-center gap-2 px-2 py-1 sm:flex",
+                  pathname === "/profile" && "nav-link-active"
                 )}
                 title="Mon profil"
               >
@@ -263,10 +263,8 @@ export function Navbar() {
               href="/profile"
               onClick={() => setMenuOpen(false)}
               className={clsx(
-                "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition",
-                pathname === "/profile"
-                  ? "bg-theme-nav-active text-theme-from"
-                  : "text-theme-muted-soft hover:text-white"
+                "nav-link flex items-center gap-2",
+                pathname === "/profile" && "nav-link-active"
               )}
             >
               <UserAvatar

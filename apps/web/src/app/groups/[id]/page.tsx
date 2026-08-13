@@ -82,6 +82,9 @@ function PodiumCard({
           )}
         </p>
         <p className="mt-1 font-game text-xl font-bold text-theme-from">{member.karmaScore}</p>
+        <p className="mt-1 text-[10px] font-semibold leading-tight text-theme-muted-soft sm:text-xs">
+          Niv. {member.questLevel} · {member.questTitle}
+        </p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-purple-900/40">
           <div
             className="karma-progress-fill h-full"
@@ -131,6 +134,9 @@ function LeaderboardRow({
             {member.isMe && !member.isGroupOwner && (
               <span className="ml-2 text-xs text-theme-from">(vous)</span>
             )}
+          </p>
+          <p className="text-xs text-theme-muted-soft">
+            Niv. {member.questLevel} · {member.questTitle}
           </p>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-purple-900/40">
             <div
@@ -411,6 +417,8 @@ export default function GroupDetailPage() {
                     max={memberStats.maxKarma}
                     dailyDecay={memberStats.dailyDecay}
                     username={memberStats.username}
+                    questLevel={memberStats.questLevel}
+                    questTitle={memberStats.questTitle}
                   />
                 ) : null}
                 <button

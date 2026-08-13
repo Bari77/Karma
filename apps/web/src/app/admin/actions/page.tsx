@@ -79,38 +79,39 @@ function ActionAdminRow({
         <span className="text-2xl">{action.type === "GOOD" ? "✅" : "❌"}</span>
         <input
           className="input-gaming min-w-[200px] flex-1 py-2 text-sm"
+          placeholder="Libellé"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           onBlur={() => saveIfChanged("label", label)}
           disabled={saving}
         />
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-theme-muted">Points</label>
-          <input
-            type="number"
-            className="input-gaming w-20 py-2 text-sm"
-            value={points}
-            min={1}
-            onChange={(e) => setPoints(Math.max(1, parseInt(e.target.value) || 1))}
-            onBlur={() => saveIfChanged("points", points)}
-            disabled={saving}
-          />
-        </div>
+        <input
+          type="number"
+          className="input-gaming w-20 py-2 text-sm"
+          placeholder="Pts"
+          value={points}
+          min={1}
+          onChange={(e) => setPoints(Math.max(1, parseInt(e.target.value) || 1))}
+          onBlur={() => saveIfChanged("points", points)}
+          disabled={saving}
+          aria-label="Points"
+        />
         <span className="rounded-lg bg-purple-900/40 px-2 py-1 text-xs text-theme-muted-soft">
           {action.status}
         </span>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-theme pt-3">
-        <label className="text-xs text-theme-muted">Cooldown (jours)</label>
         <input
           type="number"
-          className="input-gaming w-20 py-2 text-sm"
+          className="input-gaming w-28 py-2 text-sm"
+          placeholder="Cooldown (jours)"
           value={cooldownDays}
           min={0}
           onChange={(e) => setCooldownDays(Math.max(0, parseInt(e.target.value) || 0))}
           onBlur={() => saveIfChanged("cooldownDays", cooldownDays)}
           disabled={saving}
+          aria-label="Cooldown en jours"
         />
         <span className="text-xs text-theme-muted">{formatCooldownDays(cooldownDays)}</span>
         {saving && <span className="text-xs text-theme-from/70">Enregistrement…</span>}
@@ -205,61 +206,41 @@ export default function AdminActionsPage() {
         <form onSubmit={create} className="card-gaming mb-8 space-y-4 p-6">
           <h2 className="font-semibold text-theme-from">Créer une action</h2>
 
-          <div>
-            <label htmlFor="action-label" className="mb-1 block text-sm text-theme-muted-soft">
-              Libellé
-            </label>
-            <input
-              id="action-label"
-              className="input-gaming"
-              placeholder="Ex. Tenir la porte à quelqu'un"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              required
-            />
-          </div>
+          <input
+            className="input-gaming"
+            placeholder="Libellé — ex. Tenir la porte à quelqu'un"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            required
+          />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label htmlFor="action-points" className="mb-1 block text-sm text-theme-muted-soft">
-                Points
-              </label>
-              <input
-                id="action-points"
-                type="number"
-                className="input-gaming"
-                value={points}
-                onChange={(e) => setPoints(parseInt(e.target.value) || 1)}
-                min={1}
-              />
-            </div>
-            <div>
-              <label htmlFor="action-type" className="mb-1 block text-sm text-theme-muted-soft">
-                Type
-              </label>
-              <GamingSelect
-                id="action-type"
-                value={type}
-                onChange={setType}
-                options={[
-                  { value: ActionType.GOOD, label: "Bonne action" },
-                  { value: ActionType.BAD, label: "Mauvaise action" },
-                ]}
-              />
-            </div>
-            <div>
-              <label htmlFor="action-cooldown" className="mb-1 block text-sm text-theme-muted-soft">
-                Cooldown (jours)
-              </label>
-              <input
-                id="action-cooldown"
-                type="number"
-                className="input-gaming"
-                value={cooldownDays}
-                onChange={(e) => setCooldownDays(Math.max(0, parseInt(e.target.value) || 0))}
-                min={0}
-              />
-            </div>
+            <input
+              type="number"
+              className="input-gaming"
+              placeholder="Points"
+              value={points}
+              onChange={(e) => setPoints(parseInt(e.target.value) || 1)}
+              min={1}
+            />
+            <GamingSelect
+              id="action-type"
+              value={type}
+              onChange={setType}
+              aria-label="Type d'action"
+              options={[
+                { value: ActionType.GOOD, label: "Bonne action" },
+                { value: ActionType.BAD, label: "Mauvaise action" },
+              ]}
+            />
+            <input
+              type="number"
+              className="input-gaming"
+              placeholder="Cooldown (jours)"
+              value={cooldownDays}
+              onChange={(e) => setCooldownDays(Math.max(0, parseInt(e.target.value) || 0))}
+              min={0}
+            />
             <div className="flex items-end">
               <button type="submit" className="btn-primary w-full whitespace-nowrap">
                 Ajouter

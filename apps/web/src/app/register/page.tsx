@@ -78,7 +78,7 @@ export default function RegisterPage() {
         </div>
         <p className="mt-4 text-center text-sm text-theme-muted">
           Déjà inscrit ?{" "}
-          <Link href="/login" className="text-theme-from hover:underline">
+          <Link href="/login" className="link-theme">
             Se connecter
           </Link>
         </p>

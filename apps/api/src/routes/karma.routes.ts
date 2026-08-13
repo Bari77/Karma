@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { getKarmaConfig } from "../lib/utils";
 import { getUserById } from "../services/user.service";
 import { applyDailyDecay, getKarmaHistory } from "../services/karma.service";
+import { getUserQuestLevel } from "../services/quest.service";
 import { ADMIN_ROLES, hasRole } from "../types";
 
 export async function karmaRoutes(fastify: FastifyInstance) {
@@ -15,11 +16,14 @@ export async function karmaRoutes(fastify: FastifyInstance) {
       if (!user) return reply.status(404).send({ error: "Utilisateur introuvable" });
 
       const { dailyDecay, maxKarma } = getKarmaConfig();
+      const quest = await getUserQuestLevel(user.id);
       return {
         karmaScore: user.karmaScore,
         maxKarma,
         dailyDecay,
         percentFull: Math.round((user.karmaScore / maxKarma) * 100),
+        questLevel: quest.level,
+        questTitle: quest.title,
       };
     }
   );

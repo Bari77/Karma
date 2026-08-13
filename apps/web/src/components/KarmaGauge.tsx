@@ -12,6 +12,8 @@ interface KarmaGaugeProps {
   max: number;
   dailyDecay: number;
   username?: string;
+  questLevel?: number;
+  questTitle?: string;
   variant?: "full" | "horizontal";
   bare?: boolean;
 }
@@ -394,16 +396,20 @@ function KarmaGaugeHorizontal({
   dailyDecay,
   bare = false,
   colors,
+  rankLabel,
 }: {
   score: number;
   max: number;
   dailyDecay: number;
   bare?: boolean;
   colors: ThemeDefinition;
+  rankLabel?: string;
 }) {
   const percent = Math.round((score / max) * 100);
   const mood = getMood(percent, colors);
   const filledSegments = Math.round((score / max) * SEGMENTS);
+  const statusLabel = rankLabel ?? mood.label;
+  const statusColor = rankLabel ? colors.glow : mood.color;
 
   return (
     <div
@@ -432,9 +438,9 @@ function KarmaGaugeHorizontal({
 
       <p
         className="relative mt-2 text-center font-game text-sm font-bold tracking-wide"
-        style={{ color: mood.color }}
+        style={{ color: statusColor }}
       >
-        {mood.label}
+        {statusLabel}
       </p>
       <p className="relative mt-0.5 text-center text-[11px] text-theme-muted-soft">
         −{dailyDecay} karma / jour d&apos;inactivité
@@ -448,10 +454,18 @@ export function KarmaGauge({
   max,
   dailyDecay,
   username,
+  questLevel,
+  questTitle,
   variant = "full",
   bare = false,
 }: KarmaGaugeProps) {
   const colors = useThemeColors();
+  const rankLabel =
+    questTitle != null
+      ? questLevel != null
+        ? `Niv. ${questLevel} · ${questTitle}`
+        : questTitle
+      : undefined;
 
   if (variant === "horizontal") {
     return (
@@ -461,6 +475,7 @@ export function KarmaGauge({
         dailyDecay={dailyDecay}
         bare={bare}
         colors={colors}
+        rankLabel={rankLabel}
       />
     );
   }
@@ -468,6 +483,8 @@ export function KarmaGauge({
   const percent = Math.round((score / max) * 100);
   const mood = getMood(percent, colors);
   const filledSegments = Math.round((score / max) * SEGMENTS);
+  const statusLabel = rankLabel ?? mood.label;
+  const statusColor = rankLabel ? colors.glow : mood.color;
 
   return (
     <div className="card-gaming relative w-full overflow-hidden px-4 py-6 pb-2 text-center">
@@ -541,12 +558,12 @@ export function KarmaGauge({
             x={CX}
             y={CY + YIN_R + 44}
             textAnchor="middle"
-            fill={mood.color}
+            fill={statusColor}
             fontSize={16}
             fontFamily="Orbitron, sans-serif"
             fontWeight="700"
           >
-            {mood.label}
+            {statusLabel}
           </text>
           <text
             x={CX}

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { seedActions } from "./seed-actions";
+import { seedQuests } from "./seed-quests";
 import { logDevAccounts, seedDevUsers } from "./seed-dev";
 
 export function shouldSeedDevUsers(): boolean {
@@ -26,9 +27,11 @@ async function main() {
     }
 
     const result = await seedActions(prisma, validatedById);
+    const quests = await seedQuests(prisma);
 
     console.log("Seed OK");
     console.log(`Actions : ${result.good} bonnes, ${result.bad} mauvaises`);
+    console.log(`Quêtes : ${quests.levels} niveaux`);
 
     if (seedDev) {
       logDevAccounts();

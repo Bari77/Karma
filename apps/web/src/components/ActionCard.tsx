@@ -19,6 +19,7 @@ interface ActionCardProps {
   remainingMs?: number;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
+  hideLeadingIcon?: boolean;
 }
 
 function ActionStar({
@@ -75,6 +76,7 @@ export function ActionCard({
   remainingMs = 0,
   isFavorite = false,
   onToggleFavorite,
+  hideLeadingIcon = false,
 }: ActionCardProps) {
   const isGood = type === ActionType.GOOD || type === "GOOD";
   const onCooldown = disabled && !loading;
@@ -123,18 +125,19 @@ export function ActionCard({
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3 pr-2">
-          {onToggleFavorite ? (
-            <ActionStar
-              isFavorite={isFavorite}
-              isGood={isGood}
-              onToggle={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(id);
-              }}
-            />
-          ) : (
-            <span className="shrink-0 text-2xl">{isGood ? "✅" : "❌"}</span>
-          )}
+          {!hideLeadingIcon &&
+            (onToggleFavorite ? (
+              <ActionStar
+                isFavorite={isFavorite}
+                isGood={isGood}
+                onToggle={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(id);
+                }}
+              />
+            ) : (
+              <span className="shrink-0 text-2xl">{isGood ? "✅" : "❌"}</span>
+            ))}
           <span className="min-w-0 font-semibold text-white">{label}</span>
         </div>
         {loading ? (

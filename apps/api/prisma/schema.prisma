@@ -46,6 +46,41 @@ model User {
   ownedGroups     Group[]       @relation("OwnedGroups")
   groupMembers    GroupMember[]
   actionFavorites UserActionFavorite[]
+  questProgress   UserQuestProgress?
+}
+
+model QuestLevel {
+  id          String           @id @default(cuid())
+  level       Int              @unique
+  title       String
+  description String?
+  objectives  QuestObjective[]
+}
+
+model QuestObjective {
+  id          String     @id @default(cuid())
+  levelId     String
+  sortOrder   Int        @default(0)
+  label       String
+  targetCount Int        @default(1)
+  actionId    String?
+  actionType  ActionType @default(GOOD)
+  minPoints   Int?
+
+  level  QuestLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  action Action?    @relation(fields: [actionId], references: [id], onDelete: SetNull)
+
+  @@index([levelId])
+}
+
+model UserQuestProgress {
+  userId             String   @id
+  currentLevel       Int      @default(1)
+  objectiveProgress  Json     @default("{}")
+  maxLevelCompleted  Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Action {
@@ -65,6 +100,7 @@ model Action {
   karmaLogs   KarmaLog[]
   actionLogs  UserActionLog[]
   favorites   UserActionFavorite[]
+  questObjectives QuestObjective[]
 }
 
 model KarmaLog {

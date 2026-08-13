@@ -206,6 +206,7 @@ export async function actionRoutes(fastify: FastifyInstance) {
             label: result.action.label,
             type: result.action.type,
           },
+          questUpdate: result.questUpdate,
         };
       } catch (err) {
         return reply.status(400).send({

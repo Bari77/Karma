@@ -57,37 +57,25 @@ export default function ProposePage() {
           )}
 
           <div className="space-y-4">
+            <input
+              className="input-gaming"
+              placeholder="Libellé — ex. Tenir la porte à quelqu'un"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              required
+              minLength={2}
+            />
+            <input
+              type="number"
+              className="input-gaming"
+              placeholder="Points"
+              value={points}
+              onChange={(e) => setPoints(parseInt(e.target.value) || 1)}
+              min={1}
+              required
+            />
             <div>
-              <label htmlFor="propose-label" className="mb-1 block text-sm text-theme-muted-soft">
-                Libellé
-              </label>
-              <input
-                id="propose-label"
-                className="input-gaming"
-                placeholder="Ex. Tenir la porte à quelqu'un"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                required
-                minLength={2}
-              />
-            </div>
-            <div>
-              <label htmlFor="propose-points" className="mb-1 block text-sm text-theme-muted-soft">
-                Points
-              </label>
-              <input
-                id="propose-points"
-                type="number"
-                className="input-gaming"
-                value={points}
-                onChange={(e) => setPoints(parseInt(e.target.value) || 1)}
-                min={1}
-                required
-              />
-            </div>
-            <div>
-              <span className="mb-1 block text-sm text-theme-muted-soft">Type</span>
-              <div className="flex gap-3">
+              <div className="flex gap-3" role="group" aria-label="Type d'action">
                 <button
                   type="button"
                   onClick={() => setType(ActionType.GOOD)}

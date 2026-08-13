@@ -11,6 +11,7 @@ import { actionRoutes } from "./routes/action.routes";
 import { authRoutes } from "./routes/auth.routes";
 import { groupRoutes } from "./routes/group.routes";
 import { karmaRoutes } from "./routes/karma.routes";
+import { questRoutes } from "./routes/quest.routes";
 import { userRoutes } from "./routes/user.routes";
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -44,6 +45,7 @@ async function main() {
   await fastify.register(actionRoutes, { prefix: "/actions" });
   await fastify.register(userRoutes, { prefix: "/users" });
   await fastify.register(groupRoutes, { prefix: "/groups" });
+  await fastify.register(questRoutes, { prefix: "/quests" });
 
   try {
     await fastify.listen({ port: PORT, host: "0.0.0.0" });

@@ -2,6 +2,7 @@ import { ActionStatus, ActionType } from "@prisma/client";
 import { Role } from "@karma/shared";
 import { prisma } from "../lib/prisma";
 import { adjustKarma } from "./karma.service";
+import { recordQuestActionProgress } from "./quest.service";
 import {
   defaultCooldownDays,
   getCooldownStatus,
@@ -134,7 +135,12 @@ export async function performAction(userId: string, actionId: string) {
     actionId
   );
 
-  return { pointsChange, newScore, action };
+  const questUpdate =
+    action.type === ActionType.GOOD
+      ? await recordQuestActionProgress(userId, action)
+      : null;
+
+  return { pointsChange, newScore, action, questUpdate };
 }
 
 export async function getActionsCooldownStatus(userId: string) {

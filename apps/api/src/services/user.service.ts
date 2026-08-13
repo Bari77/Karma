@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { Role, ThemeId, isThemeId } from "@karma/shared";
+import { Role, ThemeId, isThemeId, normalizeEmail } from "@karma/shared";
 import { prisma } from "../lib/prisma";
 import { removeUserAvatarFiles, saveUserAvatar } from "../lib/avatar";
 import { toUserPublic } from "../lib/utils";
@@ -25,8 +25,14 @@ export async function registerUser(
   username: string,
   password: string
 ) {
+  const normalizedEmail = normalizeEmail(email);
   const existing = await prisma.user.findFirst({
-    where: { OR: [{ email }, { username }] },
+    where: {
+      OR: [
+        { email: { equals: normalizedEmail, mode: "insensitive" } },
+        { username },
+      ],
+    },
   });
   if (existing) {
     throw new Error("Email ou pseudo déjà utilisé");
@@ -34,14 +40,17 @@ export async function registerUser(
 
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { email, username, passwordHash },
+    data: { email: normalizedEmail, username, passwordHash },
   });
 
   return toUserPublic(user);
 }
 
 export async function loginUser(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const normalizedEmail = normalizeEmail(email);
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: normalizedEmail, mode: "insensitive" } },
+  });
   if (!user) throw new Error("Identifiants invalides");
 
   const valid = await bcrypt.compare(password, user.passwordHash);
@@ -76,13 +85,16 @@ export async function updateUserProfile(
   }
 
   if (data.email || data.username) {
+    const normalizedEmail = data.email ? normalizeEmail(data.email) : undefined;
     const existing = await prisma.user.findFirst({
       where: {
         AND: [
           { id: { not: userId } },
           {
             OR: [
-              ...(data.email ? [{ email: data.email }] : []),
+              ...(normalizedEmail
+                ? [{ email: { equals: normalizedEmail, mode: "insensitive" as const } }]
+                : []),
               ...(data.username ? [{ username: data.username }] : []),
             ],
           },
@@ -98,7 +110,7 @@ export async function updateUserProfile(
     where: { id: userId },
     data: {
       ...(data.username !== undefined && { username: data.username }),
-      ...(data.email !== undefined && { email: data.email }),
+      ...(data.email !== undefined && { email: normalizeEmail(data.email) }),
       ...(data.themeId !== undefined && { themeId: data.themeId }),
     },
   });

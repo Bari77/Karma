@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "../lib/prisma";
 import { getKarmaConfig } from "../lib/utils";
 import { applyDailyDecay } from "./karma.service";
+import { getUserQuestLevel, getUserQuestLevels } from "./quest.service";
 
 function generateInviteCode(): string {
   return randomBytes(4).toString("hex").toUpperCase();
@@ -127,15 +128,23 @@ export async function getGroupDetail(groupId: string, userId: string) {
     },
   });
 
+  const userIds = group.members.map((m) => m.user.id);
+  const questLevels = await getUserQuestLevels(userIds);
+
   const members = group.members
-    .map((m) => ({
-      userId: m.user.id,
-      username: m.user.username,
-      avatarUrl: m.user.avatarUrl,
-      karmaScore: m.user.karmaScore,
-      isMe: m.user.id === userId,
-      isGroupOwner: m.user.id === group.ownerId,
-    }))
+    .map((m) => {
+      const quest = questLevels.get(m.user.id) ?? { level: 1, title: "Novice du karma" };
+      return {
+        userId: m.user.id,
+        username: m.user.username,
+        avatarUrl: m.user.avatarUrl,
+        karmaScore: m.user.karmaScore,
+        questLevel: quest.level,
+        questTitle: quest.title,
+        isMe: m.user.id === userId,
+        isGroupOwner: m.user.id === group.ownerId,
+      };
+    })
     .sort((a, b) => b.karmaScore - a.karmaScore)
     .map((m, i) => ({ ...m, rank: i + 1 }));
 
@@ -163,6 +172,7 @@ export async function getMemberKarma(
   const user = await prisma.user.findUniqueOrThrow({ where: { id: targetUserId } });
   const updated = await applyDailyDecay(user);
   const { dailyDecay, maxKarma } = getKarmaConfig();
+  const quest = await getUserQuestLevel(updated.id);
 
   return {
     userId: updated.id,
@@ -171,6 +181,8 @@ export async function getMemberKarma(
     maxKarma,
     dailyDecay,
     percentFull: Math.round((updated.karmaScore / maxKarma) * 100),
+    questLevel: quest.level,
+    questTitle: quest.title,
   };
 }
 

@@ -69,6 +69,8 @@ export interface KarmaStats {
   maxKarma: number;
   dailyDecay: number;
   percentFull: number;
+  questLevel: number;
+  questTitle: string;
 }
 
 export interface ActionWithStatus {
@@ -108,6 +110,8 @@ export interface GroupMemberRank {
   username: string;
   avatarUrl: string | null;
   karmaScore: number;
+  questLevel: number;
+  questTitle: string;
   rank: number;
   isMe: boolean;
   isGroupOwner: boolean;

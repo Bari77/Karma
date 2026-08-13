@@ -157,12 +157,43 @@ h1, h2, h3, .font-game {
   }
 
   .input-gaming::placeholder {
-    color: color-mix(in srgb, var(--theme-accent-to) 40%, transparent);
+    color: var(--theme-text-muted);
+    opacity: 1;
   }
 
   .input-gaming:focus {
     border-color: color-mix(in srgb, var(--theme-accent-from) 60%, transparent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent-from) 20%, transparent);
+  }
+
+  .link-theme {
+    @apply font-semibold underline-offset-[3px] transition;
+    color: color-mix(in srgb, var(--theme-accent-to-neon) 55%, #f8fafc);
+  }
+
+  .link-theme:hover {
+    @apply underline;
+    color: var(--theme-accent-to-neon);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--theme-glow) 50%, transparent);
+  }
+
+  .nav-link {
+    @apply rounded-lg px-3 py-2 text-sm font-semibold transition;
+    color: var(--theme-text-muted-soft);
+  }
+
+  .nav-link:hover:not(.nav-link-active) {
+    color: #f8fafc;
+    background-color: color-mix(in srgb, var(--theme-accent-to) 10%, transparent);
+  }
+
+  .nav-link-active {
+    color: #f8fafc;
+    background-color: color-mix(in srgb, var(--theme-accent-to) 22%, var(--theme-bg));
+    border: 1px solid color-mix(in srgb, var(--theme-accent-to-neon) 38%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+      0 0 14px color-mix(in srgb, var(--theme-glow) 12%, transparent);
   }
 
   .select-gaming {

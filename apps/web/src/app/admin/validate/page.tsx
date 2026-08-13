@@ -77,66 +77,51 @@ export default function ValidatePage() {
                   {a.type === "GOOD" ? "✅ Bonne action" : "❌ Mauvaise action"}
                 </p>
 
-                <div>
-                  <label htmlFor={`validate-label-${a.id}`} className="mb-1 block text-sm text-theme-muted-soft">
-                    Libellé
-                  </label>
+                <input
+                  className="input-gaming"
+                  placeholder="Libellé"
+                  value={edits[a.id]?.label ?? a.label}
+                  onChange={(e) =>
+                    setEdits((prev) => ({
+                      ...prev,
+                      [a.id]: { ...prev[a.id], label: e.target.value },
+                    }))
+                  }
+                />
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <input
-                    id={`validate-label-${a.id}`}
+                    type="number"
                     className="input-gaming"
-                    value={edits[a.id]?.label ?? a.label}
+                    placeholder="Points"
+                    value={edits[a.id]?.points ?? a.points}
                     onChange={(e) =>
                       setEdits((prev) => ({
                         ...prev,
-                        [a.id]: { ...prev[a.id], label: e.target.value },
+                        [a.id]: {
+                          ...prev[a.id],
+                          points: parseInt(e.target.value) || 1,
+                        },
                       }))
                     }
+                    min={1}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor={`validate-points-${a.id}`} className="mb-1 block text-sm text-theme-muted-soft">
-                      Points
-                    </label>
-                    <input
-                      id={`validate-points-${a.id}`}
-                      type="number"
-                      className="input-gaming"
-                      value={edits[a.id]?.points ?? a.points}
-                      onChange={(e) =>
-                        setEdits((prev) => ({
-                          ...prev,
-                          [a.id]: {
-                            ...prev[a.id],
-                            points: parseInt(e.target.value) || 1,
-                          },
-                        }))
-                      }
-                      min={1}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor={`validate-cooldown-${a.id}`} className="mb-1 block text-sm text-theme-muted-soft">
-                      Cooldown (jours)
-                    </label>
-                    <input
-                      id={`validate-cooldown-${a.id}`}
-                      type="number"
-                      className="input-gaming"
-                      value={edits[a.id]?.cooldownDays ?? a.cooldownDays}
-                      onChange={(e) =>
-                        setEdits((prev) => ({
-                          ...prev,
-                          [a.id]: {
-                            ...prev[a.id],
-                            cooldownDays: Math.max(0, parseInt(e.target.value) || 0),
-                          },
-                        }))
-                      }
-                      min={0}
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    className="input-gaming"
+                    placeholder="Cooldown (jours)"
+                    value={edits[a.id]?.cooldownDays ?? a.cooldownDays}
+                    onChange={(e) =>
+                      setEdits((prev) => ({
+                        ...prev,
+                        [a.id]: {
+                          ...prev[a.id],
+                          cooldownDays: Math.max(0, parseInt(e.target.value) || 0),
+                        },
+                      }))
+                    }
+                    min={0}
+                  />
                 </div>
 
                 <p className="text-xs text-theme-muted">
