@@ -1,6 +1,10 @@
 import { Action, ActionType } from "@prisma/client";
-import type { QuestProgression, QuestProgressUpdate } from "@karma/shared";
-import { getQuestRankTitle } from "@karma/shared";
+import type {
+  QuestObjectiveProgress,
+  QuestProgression,
+  QuestProgressUpdate,
+} from "@karma/shared";
+import { ActionType as SharedActionType, getQuestRankTitle } from "@karma/shared";
 import { prisma } from "../lib/prisma";
 
 type ProgressMap = Record<string, number>;
@@ -70,7 +74,7 @@ function buildObjectiveProgress(
     minPoints: number | null;
   }>,
   progress: ProgressMap
-) {
+): QuestObjectiveProgress[] {
   return objectives.map((o) => {
     const currentCount = Math.min(progress[o.id] ?? 0, o.targetCount);
     return {
@@ -80,7 +84,7 @@ function buildObjectiveProgress(
       currentCount,
       completed: currentCount >= o.targetCount,
       actionId: o.actionId,
-      actionType: o.actionType,
+      actionType: o.actionType as SharedActionType,
       minPoints: o.minPoints,
     };
   });
