@@ -22,6 +22,7 @@ export default function ValidatePage() {
     if (!user) return;
     const items = await api.pendingActions();
     setPending(items);
+    window.dispatchEvent(new Event("karma:pending-validations-changed"));
     setEdits(
       Object.fromEntries(
         items.map((a) => [

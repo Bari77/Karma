@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { UserAvatar } from "@/components/UserAvatar";
+import { api } from "@/lib/api";
 import { Role } from "@karma/shared";
 import clsx from "clsx";
 
@@ -20,15 +21,80 @@ function navLinkClass(active: boolean) {
   );
 }
 
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      aria-label={`${count} validation${count > 1 ? "s" : ""} en attente`}
+      className="absolute -right-2 -top-1.5 z-10 flex h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-karma-bg bg-red-500 px-1 text-[11px] font-bold leading-none text-white shadow-[0_0_10px_rgba(239,68,68,0.9),0_2px_4px_rgba(0,0,0,0.45)]"
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
+function NavLink({
+  href,
+  label,
+  active,
+  badge,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  badge?: number;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={clsx(navLinkClass(active), badge ? "relative mr-2 pr-1" : undefined)}
+    >
+      {label}
+      {badge != null && <NavBadge count={badge} />}
+    </Link>
+  );
+}
+
 export function Navbar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const refreshPendingCount = useCallback(async () => {
+    if (!user || !ADMIN.includes(user.role)) {
+      setPendingCount(0);
+      return;
+    }
+    try {
+      const items = await api.pendingActions();
+      setPendingCount(items.length);
+    } catch {
+      setPendingCount(0);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    refreshPendingCount();
+  }, [refreshPendingCount, pathname]);
+
+  useEffect(() => {
+    const onUpdate = () => refreshPendingCount();
+    window.addEventListener("focus", onUpdate);
+    window.addEventListener("karma:pending-validations-changed", onUpdate);
+    return () => {
+      window.removeEventListener("focus", onUpdate);
+      window.removeEventListener("karma:pending-validations-changed", onUpdate);
+    };
+  }, [refreshPendingCount]);
 
   const dashboardActive =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
-  const links = [
+  const links: { href: string; label: string; badge?: number }[] = [
     { href: "/groups", label: "Groupes" },
     { href: "/propose", label: "Proposer" },
     { href: "/history", label: "Historique" },
@@ -38,7 +104,11 @@ export function Navbar() {
     links.push({ href: "/admin/actions", label: "Actions" });
   }
   if (user && ADMIN.includes(user.role)) {
-    links.push({ href: "/admin/validate", label: "Validation" });
+    links.push({
+      href: "/admin/validate",
+      label: "Validation",
+      badge: pendingCount,
+    });
   }
   if (user?.role === Role.SUPER_ADMIN) {
     links.push({ href: "/admin/users", label: "Utilisateurs" });
@@ -86,9 +156,13 @@ export function Navbar() {
                 const active =
                   pathname === l.href || pathname.startsWith(l.href + "/");
                 return (
-                  <Link key={l.href} href={l.href} className={navLinkClass(active)}>
-                    {l.label}
-                  </Link>
+                  <NavLink
+                    key={l.href}
+                    href={l.href}
+                    label={l.label}
+                    active={active}
+                    badge={l.badge}
+                  />
                 );
               })}
             </div>
@@ -163,14 +237,14 @@ export function Navbar() {
               const active =
                 pathname === l.href || pathname.startsWith(l.href + "/");
               return (
-                <Link
+                <NavLink
                   key={l.href}
                   href={l.href}
+                  label={l.label}
+                  active={active}
+                  badge={l.badge}
                   onClick={() => setMenuOpen(false)}
-                  className={navLinkClass(active)}
-                >
-                  {l.label}
-                </Link>
+                />
               );
             })}
             <Link
