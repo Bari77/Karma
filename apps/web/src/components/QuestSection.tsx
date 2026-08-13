@@ -87,10 +87,10 @@ export function QuestSection({
   return (
     <section className="card-gaming mb-8 p-5 sm:p-6">
       <div className="mb-4">
-        <p className="font-game text-xs uppercase tracking-wider text-theme-muted-soft">
+        <p className="font-game text-xs uppercase tracking-wider text-theme-muted">
           Quête · Niveau {quest.level}
         </p>
-        <h2 className="font-game text-xl font-bold text-theme-from">{quest.title}</h2>
+        <h2 className="font-game text-xl font-bold text-white">{quest.title}</h2>
         {quest.description && (
           <p className="mt-1 text-sm text-theme-muted">{quest.description}</p>
         )}

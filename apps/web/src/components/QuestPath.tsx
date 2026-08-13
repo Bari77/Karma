@@ -87,10 +87,10 @@ function QuestBubble({ node, pulse }: { node: QuestLevelNode; pulse: boolean }) 
             "border-[color:var(--theme-good)] bg-[color:var(--theme-good)]/20 text-theme-good",
           isCurrent &&
             !shouldPulse &&
-            "border-theme-from bg-theme-nav-active text-theme-from shadow-[0_0_16px_var(--theme-glow)]",
+            "border-[color:color-mix(in_srgb,var(--theme-accent-to-neon)_38%,transparent)] bg-[color:color-mix(in_srgb,var(--theme-accent-to)_22%,var(--theme-bg))] text-white shadow-[0_0_16px_var(--theme-glow)]",
           isCurrent &&
             shouldPulse &&
-            "border-theme-from bg-theme-nav-active text-theme-from",
+            "border-[color:color-mix(in_srgb,var(--theme-accent-to-neon)_38%,transparent)] bg-[color:color-mix(in_srgb,var(--theme-accent-to)_22%,var(--theme-bg))] text-white",
           isLocked && "border-theme bg-karma-card/30 text-theme-muted-soft"
         )}
       >
@@ -99,7 +99,7 @@ function QuestBubble({ node, pulse }: { node: QuestLevelNode; pulse: boolean }) 
       <p
         className={clsx(
           "max-w-[8.5rem] text-center text-[11px] font-semibold leading-tight",
-          isCurrent ? "text-theme-from" : isCompleted ? "text-theme-good" : "text-theme-muted-soft"
+          isCurrent ? "text-white" : isCompleted ? "text-theme-good" : "text-theme-muted-soft"
         )}
       >
         {node.title}
